@@ -55,6 +55,18 @@ import '../screens/address_book_screen.dart';
 import '../screens/add_address_screen.dart';
 import '../screens/notification_screen.dart';
 import '../screens/logout_confirmation_screen.dart';
+import '../screens/my_reviews_screen.dart';
+import '../screens/customer_service_screen.dart';
+
+// ✅ BAGONG IMPORTS
+import '../screens/wishlist_screen.dart';
+import '../screens/vouchers_screen.dart';
+import '../screens/help_center_screen.dart';
+import '../screens/terms_screen.dart';
+import '../screens/privacy_screen.dart';
+import '../screens/change_password_screen.dart';
+import '../screens/security_settings_screen.dart';
+import '../screens/payment_methods_screen.dart';
 
 // ============================================================
 // APP ROUTER
@@ -66,83 +78,56 @@ class AppRouter {
       // AUTH SCREENS
       // ============================================================
       case '/':
-        return MaterialPageRoute(
-          builder: (_) => const SplashScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const SplashScreen());
 
       case '/welcome':
-        return MaterialPageRoute(
-          builder: (_) => const WelcomeScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const WelcomeScreen());
 
       case '/login':
-        return MaterialPageRoute(
-          builder: (_) => const LoginScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const LoginScreen());
 
       case '/forgot_password':
-        return MaterialPageRoute(
-          builder: (_) => const ForgotPasswordScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const ForgotPasswordScreen());
 
       // ============================================================
       // REGISTER SCREENS
       // ============================================================
       case '/register_personal':
         return MaterialPageRoute(
-          builder: (_) => const RegisterPersonalScreen(),
-        );
+            builder: (_) => const RegisterPersonalScreen());
 
       case '/register_contact':
-        return MaterialPageRoute(
-          builder: (_) => const RegisterContactScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const RegisterContactScreen());
 
       case '/register_address':
-        return MaterialPageRoute(
-          builder: (_) => const RegisterAddressScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const RegisterAddressScreen());
 
       case '/register_id':
-        return MaterialPageRoute(
-          builder: (_) => const RegisterIDScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const RegisterIDScreen());
 
       case '/register_account':
-        return MaterialPageRoute(
-          builder: (_) => const RegisterAccountScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const RegisterAccountScreen());
 
       case '/registration_pending':
         return MaterialPageRoute(
-          builder: (_) => const RegistrationPendingScreen(),
-        );
+            builder: (_) => const RegistrationPendingScreen());
 
       // ============================================================
       // MAIN APP SCREENS
       // ============================================================
       case '/home':
-        return MaterialPageRoute(
-          builder: (_) => const HomeScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const HomeScreen());
 
       case '/categories':
-        return MaterialPageRoute(
-          builder: (_) => const CategoriesScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const CategoriesScreen());
 
       case '/search':
-        return MaterialPageRoute(
-          builder: (_) => const SearchScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const SearchScreen());
 
       case '/search_results':
         final query = settings.arguments as String?;
-
         return MaterialPageRoute(
-          builder: (_) => SearchResultsScreen(
-            searchQuery: query,
-          ),
+          builder: (_) => SearchResultsScreen(searchQuery: query),
         );
 
       // ============================================================
@@ -150,130 +135,123 @@ class AppRouter {
       // ============================================================
       case '/product_detail':
         final productId = settings.arguments as String?;
-
         return MaterialPageRoute(
-          builder: (_) => ProductDetailScreen(
-            productId: productId,
-          ),
+          builder: (_) => ProductDetailScreen(productId: productId),
         );
 
       case '/cart':
-        return MaterialPageRoute(
-          builder: (_) => const CartScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const CartScreen());
 
       case '/checkout':
-        return MaterialPageRoute(
-          builder: (_) => const CheckoutScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const CheckoutScreen());
 
       case '/voucher_selection':
         return MaterialPageRoute(
-          builder: (_) => const VoucherSelectionScreen(),
-        );
+            builder: (_) => const VoucherSelectionScreen());
 
       case '/payment_method':
-        return MaterialPageRoute(
-          builder: (_) => const PaymentMethodScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const PaymentMethodScreen());
 
       case '/order_success':
-        return MaterialPageRoute(
-          builder: (_) => const OrderSuccessScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const OrderSuccessScreen());
 
       // ============================================================
       // ORDERS SCREENS
       // ============================================================
       case '/my_orders':
-        return MaterialPageRoute(
-          builder: (_) => const MyOrdersScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const MyOrdersScreen());
 
       case '/order_details':
         final orderId = settings.arguments as String?;
-
         return MaterialPageRoute(
-          builder: (_) => OrderDetailsScreen(
-            orderId: orderId,
-          ),
+          builder: (_) => OrderDetailsScreen(orderId: orderId),
         );
 
       case '/order_tracking':
         final orderId = settings.arguments as String?;
-
         return MaterialPageRoute(
-          builder: (_) => OrderTrackingScreen(
-            orderId: orderId,
-          ),
+          builder: (_) => OrderTrackingScreen(orderId: orderId),
         );
 
       case '/rate_feedback':
         final orderId = settings.arguments as String?;
-
         return MaterialPageRoute(
-          builder: (_) => RateFeedbackScreen(
-            orderId: orderId,
-          ),
+          builder: (_) => RateFeedbackScreen(orderId: orderId),
         );
 
       // ============================================================
       // CHAT SCREENS
       // ============================================================
       case '/chat_list':
-        return MaterialPageRoute(
-          builder: (_) => ChatListScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => ChatListScreen());
 
       case '/chat_conversation':
         final chatId = settings.arguments as String?;
-
         return MaterialPageRoute(
-          builder: (_) => ChatConversationScreen(
-            chatId: chatId,
-          ),
+          builder: (_) => ChatConversationScreen(chatId: chatId),
         );
 
       // ============================================================
       // ACCOUNT SCREENS
       // ============================================================
       case '/account':
-        return MaterialPageRoute(
-          builder: (_) => const AccountScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const AccountScreen());
 
       case '/edit_profile':
-        return MaterialPageRoute(
-          builder: (_) => const EditProfileScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const EditProfileScreen());
 
       case '/address_book':
-        return MaterialPageRoute(
-          builder: (_) => AddressBookScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => AddressBookScreen());
 
       case '/add_address':
-        return MaterialPageRoute(
-          builder: (_) => const AddAddressScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const AddAddressScreen());
 
       case '/notification':
-        return MaterialPageRoute(
-          builder: (_) => const NotificationScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const NotificationScreen());
 
       case '/logout_confirmation':
         return MaterialPageRoute(
-          builder: (_) => const LogoutConfirmationScreen(),
-        );
+            builder: (_) => const LogoutConfirmationScreen());
+
+      // ============================================================
+      // ✅ BAGONG ROUTES (Account Menu Items)
+      // ============================================================
+      case '/my_reviews':
+        return MaterialPageRoute(builder: (_) => const MyReviewsScreen());
+
+      case '/support':
+        return MaterialPageRoute(builder: (_) => const CustomerServiceScreen());
+
+      case '/wishlist':
+        return MaterialPageRoute(builder: (_) => const WishlistScreen());
+
+      case '/vouchers':
+        return MaterialPageRoute(builder: (_) => const VouchersScreen());
+
+      case '/help_center':
+        return MaterialPageRoute(builder: (_) => const HelpCenterScreen());
+
+      case '/terms':
+        return MaterialPageRoute(builder: (_) => const TermsScreen());
+
+      case '/privacy':
+        return MaterialPageRoute(builder: (_) => const PrivacyScreen());
+
+      case '/change_password':
+        return MaterialPageRoute(builder: (_) => const ChangePasswordScreen());
+
+      case '/security_settings':
+        return MaterialPageRoute(
+            builder: (_) => const SecuritySettingsScreen());
+
+      case '/payment_methods':
+        return MaterialPageRoute(builder: (_) => const PaymentMethodsScreen());
 
       // ============================================================
       // FALLBACK
       // ============================================================
       default:
-        return MaterialPageRoute(
-          builder: (_) => const SplashScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const SplashScreen());
     }
   }
 }
