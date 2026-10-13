@@ -31,36 +31,19 @@ class PaymentMethodScreen extends StatefulWidget {
 class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
   String _selectedMethodId = '1';
 
+  // ✅ GCASH AT COD NA LANG
   final List<PaymentMethod> _paymentMethods = const [
     PaymentMethod(
       id: '1',
       title: 'Cash on Delivery',
       description: 'Pay when your order arrives',
-      icon: Icons.attach_money_outlined,
+      icon: Icons.attach_money,
     ),
     PaymentMethod(
       id: '2',
       title: 'GCash',
       description: 'Pay using your GCash wallet',
-      icon: Icons.phone_android_outlined,
-    ),
-    PaymentMethod(
-      id: '3',
-      title: 'Maya (PayMaya)',
-      description: 'Pay using your Maya account',
-      icon: Icons.phone_android_outlined,
-    ),
-    PaymentMethod(
-      id: '4',
-      title: 'Online Banking',
-      description: 'BPI, BDO, UnionBank & more',
-      icon: Icons.business_outlined,
-    ),
-    PaymentMethod(
-      id: '5',
-      title: 'Credit / Debit Card',
-      description: 'Visa, Mastercard, JCB',
-      icon: Icons.credit_card_outlined,
+      icon: Icons.phone_android,
     ),
   ];
 
@@ -89,7 +72,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -103,7 +86,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.arrow_back,
-                        size: 20, color: AppColors.primary),
+                        size: 22, color: AppColors.primary),
                     onPressed: () => Navigator.pop(context),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
@@ -112,11 +95,10 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                   const Text(
                     'Payment Method',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: AppColors.primary,
                       fontFamily: 'Poppins',
-                      letterSpacing: 1,
                     ),
                   ),
                   const Spacer(),
@@ -130,7 +112,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
             Expanded(
               child: SingleChildScrollView(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -142,7 +124,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                         fontFamily: 'Poppins',
                       ),
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 16),
                     ..._paymentMethods
                         .map((method) => _buildPaymentCard(method))
                         .toList(),
@@ -152,7 +134,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
             ),
 
             // ============================================================
-            // BOTTOM CONTAINER - Confirm Payment Method
+            // BOTTOM - Confirm Button
             // ============================================================
             Container(
               color: AppColors.white,
@@ -165,7 +147,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                     backgroundColor: AppColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   child: const Text(
@@ -187,7 +169,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
   }
 
   // ============================================================
-  // PAYMENT CARD - DARK BLUE GREEN HIGHLIGHT
+  // PAYMENT CARD - CRIMSON THEME
   // ============================================================
   Widget _buildPaymentCard(PaymentMethod method) {
     final isSelected = _selectedMethodId == method.id;
@@ -195,18 +177,18 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
     return GestureDetector(
       onTap: () => setState(() => _selectedMethodId = method.id),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.lightGray : AppColors.white,
-          borderRadius: BorderRadius.circular(10),
+          color: isSelected ? AppColors.softRose : AppColors.white,
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.lightGray,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 2,
               offset: const Offset(0, 1),
             ),
@@ -214,9 +196,13 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
         ),
         child: Row(
           children: [
-            // Icon
-            Icon(method.icon, size: 20, color: AppColors.primary),
-            const SizedBox(width: 12),
+            // Icon - crimson
+            Icon(
+              method.icon,
+              size: 24,
+              color: AppColors.primary,
+            ),
+            const SizedBox(width: 14),
             // Info
             Expanded(
               child: Column(
@@ -225,7 +211,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                   Text(
                     method.title,
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color:
                           isSelected ? AppColors.primary : AppColors.darkGray,
@@ -236,26 +222,28 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                   Text(
                     method.description,
                     style: TextStyle(
-                      fontSize: 11,
-                      color: isSelected ? AppColors.primary : AppColors.gray,
+                      fontSize: 12,
+                      color: isSelected
+                          ? AppColors.primary.withValues(alpha: 0.7)
+                          : AppColors.gray,
                       fontFamily: 'Poppins',
                     ),
                   ),
                 ],
               ),
             ),
-            // Check icon if selected - DARK BLUE GREEN
+            // Checkmark circle - crimson kapag selected
             if (isSelected)
               Container(
-                width: 22,
-                height: 22,
+                width: 26,
+                height: 26,
                 decoration: const BoxDecoration(
                   color: AppColors.primary,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.check,
-                  size: 14,
+                  size: 16,
                   color: AppColors.white,
                 ),
               ),
