@@ -17,7 +17,7 @@ import '../screens/register_address_screen.dart';
 import '../screens/register_id_screen.dart';
 import '../screens/register_account_screen.dart';
 import '../screens/registration_pending_screen.dart';
-import '../screens/otp_verification_screen.dart'; // ✅ BAGO
+import '../screens/otp_verification_screen.dart';
 
 // ============================================================
 // MAIN APP SCREENS
@@ -27,6 +27,7 @@ import '../screens/categories_screen.dart';
 import '../screens/search_screen.dart';
 import '../screens/search_results_screen.dart';
 import '../screens/products_detail_screen.dart';
+import '../screens/all_reviews_screen.dart'; // ✅ BAGO
 import '../screens/cart_screen.dart';
 import '../screens/checkout_screen.dart';
 import '../screens/voucher_selection_screen.dart';
@@ -57,9 +58,7 @@ import '../screens/add_address_screen.dart';
 import '../screens/notification_screen.dart';
 import '../screens/logout_confirmation_screen.dart';
 
-// ============================================================
-// ✅ BAGONG SCREENS - IDAGDAG ITO
-// ============================================================
+// BAGONG SCREENS
 import '../screens/my_reviews_screen.dart';
 import '../screens/customer_service_screen.dart';
 import '../screens/wishlist_screen.dart';
@@ -96,13 +95,39 @@ class AppRouter {
         return MaterialPageRoute(
             builder: (_) => const RegisterPersonalScreen());
       case '/register_contact':
-        return MaterialPageRoute(builder: (_) => const RegisterContactScreen());
+        final data = settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+          builder: (_) => RegisterContactScreen(
+            personalData: data?['personalData'],
+          ),
+        );
       case '/register_address':
-        return MaterialPageRoute(builder: (_) => const RegisterAddressScreen());
+        final data = settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+          builder: (_) => RegisterAddressScreen(
+            personalData: data?['personalData'],
+            contactData: data?['contactData'],
+          ),
+        );
       case '/register_id':
-        return MaterialPageRoute(builder: (_) => const RegisterIDScreen());
+        final data = settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+          builder: (_) => RegisterIDScreen(
+            personalData: data?['personalData'],
+            contactData: data?['contactData'],
+            addressData: data?['addressData'],
+          ),
+        );
       case '/register_account':
-        return MaterialPageRoute(builder: (_) => const RegisterAccountScreen());
+        final data = settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+          builder: (_) => RegisterAccountScreen(
+            personalData: data?['personalData'],
+            contactData: data?['contactData'],
+            addressData: data?['addressData'],
+            idFile: data?['idFile'],
+          ),
+        );
       case '/registration_pending':
         return MaterialPageRoute(
             builder: (_) => const RegistrationPendingScreen());
@@ -133,6 +158,14 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => ProductsDetailScreen(productId: productId),
         );
+
+      // ✅ ALL REVIEWS SCREEN
+      case '/all_reviews':
+        final productId = settings.arguments as String?;
+        return MaterialPageRoute(
+          builder: (_) => AllReviewsScreen(productId: productId),
+        );
+
       case '/cart':
         return MaterialPageRoute(builder: (_) => const CartScreen());
       case '/checkout':
@@ -195,9 +228,7 @@ class AppRouter {
           builder: (_) => const LogoutConfirmationScreen(),
         );
 
-      // ============================================================
-      // ✅ BAGONG SCREENS - IDAGDAG ITO
-      // ============================================================
+      // BAGONG SCREENS
       case '/my_reviews':
         return MaterialPageRoute(builder: (_) => const MyReviewsScreen());
       case '/support':

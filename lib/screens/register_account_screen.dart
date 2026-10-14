@@ -68,18 +68,23 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
       return;
     }
 
-    final allData = {
-      'personalData': widget.personalData ?? {},
-      'contactData': widget.contactData ?? {},
-      'addressData': widget.addressData ?? {},
-      'idFile': widget.idFile ?? '',
-      'password': _passwordController.text,
-    };
+    // ✅ GET EMAIL FROM CONTACT DATA (no fallback)
+    final email = widget.contactData?['email'] as String? ?? '';
 
-    Navigator.pushNamed(
+    // Debug para makita kung may email
+    print('📧 Email mula sa contactData: $email');
+    print('📦 contactData: ${widget.contactData}');
+
+    if (email.isEmpty) {
+      _showAlert('Email is missing. Please go back and re-enter your email.');
+      return;
+    }
+
+    // ✅ NAVIGATE TO OTP VERIFICATION
+    Navigator.pushReplacementNamed(
       context,
-      '/registration_pending',
-      arguments: allData,
+      '/otp_verification',
+      arguments: email,
     );
   }
 
@@ -124,9 +129,7 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ============================================================
-              // HEADER - magkadikit ang arrow at title
-              // ============================================================
+              // HEADER
               Row(
                 children: [
                   IconButton(
@@ -153,15 +156,11 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
               ),
               const SizedBox(height: 10),
 
-              // ============================================================
-              // STEPPER - UPDATED WITH CONNECTING LINE
-              // ============================================================
+              // STEPPER
               _buildStepper(currentStep: 5),
               const SizedBox(height: 14),
 
-              // ============================================================
               // DESCRIPTION
-              // ============================================================
               const Text(
                 'Set a secure password to protect your account.',
                 style: TextStyle(
@@ -173,9 +172,7 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
               ),
               const SizedBox(height: 20),
 
-              // ============================================================
               // PASSWORD
-              // ============================================================
               _buildLabel('PASSWORD *'),
               const SizedBox(height: 4),
               _buildPasswordField(
@@ -227,9 +224,7 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
               ],
               const SizedBox(height: 14),
 
-              // ============================================================
               // CONFIRM PASSWORD
-              // ============================================================
               _buildLabel('CONFIRM PASSWORD *'),
               const SizedBox(height: 4),
               _buildPasswordField(
@@ -246,9 +241,7 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
               ),
               const SizedBox(height: 14),
 
-              // ============================================================
-              // TERMS AND CONDITIONS CARD
-              // ============================================================
+              // TERMS AND CONDITIONS
               GestureDetector(
                 onTap: () {
                   setState(() {
@@ -338,9 +331,7 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
               ),
               const SizedBox(height: 18),
 
-              // ============================================================
               // SUBMIT BUTTON
-              // ============================================================
               SizedBox(
                 width: double.infinity,
                 height: 54,
@@ -374,7 +365,7 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
   }
 
   // ============================================================
-  // STEPPER - UPDATED WITH CONNECTING LINE
+  // STEPPER
   // ============================================================
   Widget _buildStepper({required int currentStep}) {
     final List<String> steps = [
@@ -389,7 +380,6 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
       height: 64,
       child: Stack(
         children: [
-          // CONNECTING LINE
           Positioned(
             left: 26,
             right: 26,
@@ -408,8 +398,6 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
               }),
             ),
           ),
-
-          // CIRCLES + LABELS
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: steps.asMap().entries.map((entry) {
@@ -424,7 +412,6 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
                 width: 50,
                 child: Column(
                   children: [
-                    // STEP CIRCLE
                     Container(
                       width: 34,
                       height: 34,
@@ -454,10 +441,7 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
                               ),
                       ),
                     ),
-
                     const SizedBox(height: 4),
-
-                    // STEP LABEL
                     Text(
                       label,
                       textAlign: TextAlign.center,
@@ -554,10 +538,12 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
           ),
           GestureDetector(
             onTap: onToggle,
-            child: const Padding(
-              padding: EdgeInsets.only(right: 14),
+            child: Padding(
+              padding: const EdgeInsets.only(right: 14),
               child: Icon(
-                Icons.visibility_outlined,
+                showPassword
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
                 color: AppColors.gray,
                 size: 22,
               ),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../utils/colors.dart';
 
-class ProductDetailScreen extends StatefulWidget {
-  const ProductDetailScreen({
+class ProductsDetailScreen extends StatefulWidget {
+  const ProductsDetailScreen({
     super.key,
     this.productId,
   });
@@ -10,10 +10,10 @@ class ProductDetailScreen extends StatefulWidget {
   final String? productId;
 
   @override
-  State<ProductDetailScreen> createState() => _ProductDetailScreenState();
+  State<ProductsDetailScreen> createState() => _ProductsDetailScreenState();
 }
 
-class _ProductDetailScreenState extends State<ProductDetailScreen> {
+class _ProductsDetailScreenState extends State<ProductsDetailScreen> {
   // ============================================================
   // PRODUCT DATA
   // ============================================================
@@ -27,18 +27,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     'reviews': 842,
     'sold': 1200,
     'category': 'ELECTRONICS',
-
-    // ==========================================================
-    // LOCAL IMAGES
-    // ==========================================================
-
     'images': [
       'assets/image/headphones.jpg',
       'assets/image/headphones.jpg',
       'assets/image/headphones.jpg',
       'assets/image/headphones.jpg',
     ],
-
     'colors': ['Black', 'Blue', 'White'],
     'stock': 25,
     'discount': 24,
@@ -88,14 +82,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   void initState() {
     super.initState();
-
     _selectedImage = _product['images'][0];
   }
 
   // ============================================================
   // QUANTITY
   // ============================================================
-
   void _increaseQuantity() {
     if (_quantity < _product['stock']) {
       setState(() {
@@ -115,10 +107,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   // ============================================================
   // ADD TO CART
   // ============================================================
-
   void _addToCart() {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -130,19 +120,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ),
         ),
         behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.fromLTRB(
-          16,
-          0,
-          16,
-          16,
-        ),
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         duration: const Duration(seconds: 2),
         action: SnackBarAction(
           label: 'View Cart',
           textColor: AppColors.white,
-          onPressed: () {
-            // Cart navigation can be added here later.
-          },
+          onPressed: () {},
         ),
       ),
     );
@@ -151,7 +134,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   // ============================================================
   // BUY NOW
   // ============================================================
-
   void _buyNow() {
     showModalBottomSheet(
       context: context,
@@ -161,17 +143,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         final int total = (_product['price'] as int) * _quantity;
 
         return Container(
-          padding: const EdgeInsets.fromLTRB(
-            20,
-            18,
-            20,
-            24,
-          ),
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
           decoration: const BoxDecoration(
             color: AppColors.white,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(24),
-            ),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: SafeArea(
             top: false,
@@ -179,10 +154,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ==================================================
                 // HEADER
-                // ==================================================
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -198,24 +170,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     IconButton(
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
-                      icon: const Icon(
-                        Icons.close,
-                        size: 23,
-                        color: AppColors.gray,
-                      ),
-                      onPressed: () {
-                        Navigator.pop(sheetContext);
-                      },
+                      icon: const Icon(Icons.close,
+                          size: 23, color: AppColors.gray),
+                      onPressed: () => Navigator.pop(sheetContext),
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 16),
 
-                // ==================================================
                 // PRODUCT
-                // ==================================================
-
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -230,11 +193,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       child: Image.asset(
                         _selectedImage,
                         fit: BoxFit.cover,
-                        errorBuilder: (
-                          context,
-                          error,
-                          stackTrace,
-                        ) {
+                        errorBuilder: (context, error, stackTrace) {
                           return const Icon(
                             Icons.image_not_supported_outlined,
                             color: AppColors.gray,
@@ -281,20 +240,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 18),
-
-                const Divider(
-                  height: 1,
-                  color: Color(0xFFE5E5E5),
-                ),
-
+                const Divider(height: 1, color: Color(0xFFE5E5E5)),
                 const SizedBox(height: 15),
 
-                // ==================================================
                 // TOTAL
-                // ==================================================
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -318,30 +268,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 18),
 
-                // ==================================================
                 // CHECKOUT BUTTON
-                // ==================================================
-
                 SizedBox(
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pop(sheetContext);
-
                       ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text(
                             'Ready for checkout',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 13,
-                            ),
+                            style:
+                                TextStyle(fontFamily: 'Poppins', fontSize: 13),
                           ),
                           behavior: SnackBarBehavior.floating,
                         ),
@@ -376,42 +318,28 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   // ============================================================
   // BUILD
   // ============================================================
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
 
-      // ========================================================
       // FIXED BOTTOM BUTTONS
-      // ========================================================
-
       bottomNavigationBar: SafeArea(
         top: false,
         child: Container(
           color: AppColors.white,
-          padding: const EdgeInsets.fromLTRB(
-            16,
-            10,
-            16,
-            14,
-          ),
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
           child: Row(
             children: [
-              // ==================================================
               // ADD TO CART
-              // ==================================================
-
               Expanded(
                 child: SizedBox(
                   height: 54,
                   child: OutlinedButton(
                     onPressed: _addToCart,
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(
-                        color: AppColors.primary,
-                        width: 2,
-                      ),
+                      side:
+                          const BorderSide(color: AppColors.primary, width: 2),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -428,13 +356,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ),
                 ),
               ),
-
               const SizedBox(width: 12),
 
-              // ==================================================
               // BUY NOW
-              // ==================================================
-
               Expanded(
                 child: SizedBox(
                   height: 54,
@@ -464,61 +388,37 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         ),
       ),
 
-      // ========================================================
       // BODY
-      // ========================================================
-
       body: SafeArea(
         child: Column(
           children: [
-            // ==================================================
             // HEADER
-            // ==================================================
-
             Container(
               height: 64,
               color: AppColors.white,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // BACK
-
                   IconButton(
                     padding: EdgeInsets.zero,
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      size: 30,
-                      color: AppColors.primary,
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+                    icon: const Icon(Icons.arrow_back,
+                        size: 30, color: AppColors.primary),
+                    onPressed: () => Navigator.pop(context),
                   ),
-
-                  // RIGHT ICONS
-
                   Row(
                     children: [
                       IconButton(
                         padding: EdgeInsets.zero,
-                        icon: const Icon(
-                          Icons.favorite_border,
-                          size: 30,
-                          color: AppColors.primary,
-                        ),
+                        icon: const Icon(Icons.favorite_border,
+                            size: 30, color: AppColors.primary),
                         onPressed: () {},
                       ),
                       const SizedBox(width: 8),
                       IconButton(
                         padding: EdgeInsets.zero,
-                        icon: const Icon(
-                          Icons.share_outlined,
-                          size: 29,
-                          color: AppColors.primary,
-                        ),
+                        icon: const Icon(Icons.share_outlined,
+                            size: 29, color: AppColors.primary),
                         onPressed: () {},
                       ),
                     ],
@@ -527,10 +427,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ),
             ),
 
-            // ==================================================
             // SCROLLABLE CONTENT
-            // ==================================================
-
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -541,7 +438,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     _buildThumbnails(),
                     _buildProductInfo(),
                     _buildSpecificationSection(),
-                    _buildReviewsSection(),
+                    _buildReviewsSection(context), // ✅ Pass context
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -556,15 +453,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   // ============================================================
   // MAIN IMAGE
   // ============================================================
-
   Widget _buildMainImage() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        16,
-        8,
-        16,
-        0,
-      ),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       child: Stack(
         children: [
           Container(
@@ -578,11 +469,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             child: Image(
               image: AssetImage(_selectedImage),
               fit: BoxFit.cover,
-              errorBuilder: (
-                context,
-                error,
-                stackTrace,
-              ) {
+              errorBuilder: (context, error, stackTrace) {
                 return Container(
                   color: const Color(0xFFE9E9E9),
                   child: const Center(
@@ -596,19 +483,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               },
             ),
           ),
-
-          // ==================================================
-          // DISCOUNT BADGE
-          // ==================================================
-
           Positioned(
             top: 14,
             right: 14,
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 9,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
               decoration: BoxDecoration(
                 color: AppColors.danger,
                 borderRadius: BorderRadius.circular(9),
@@ -632,33 +511,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   // ============================================================
   // THUMBNAILS
   // ============================================================
-
   Widget _buildThumbnails() {
     return SizedBox(
       height: 88,
       child: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(
-          16,
-          10,
-          16,
-          10,
-        ),
+        padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
         scrollDirection: Axis.horizontal,
         itemCount: _product['images'].length,
-        separatorBuilder: (context, index) {
-          return const SizedBox(width: 10);
-        },
+        separatorBuilder: (context, index) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
           final String imagePath = _product['images'][index] as String;
-
           final bool isActive = _selectedImage == imagePath && index == 0;
 
           return GestureDetector(
-            onTap: () {
-              setState(() {
-                _selectedImage = imagePath;
-              });
-            },
+            onTap: () => setState(() => _selectedImage = imagePath),
             child: Container(
               width: 62,
               height: 62,
@@ -674,11 +540,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               child: Image(
                 image: AssetImage(imagePath),
                 fit: BoxFit.cover,
-                errorBuilder: (
-                  context,
-                  error,
-                  stackTrace,
-                ) {
+                errorBuilder: (context, error, stackTrace) {
                   return const Center(
                     child: Icon(
                       Icons.image_not_supported_outlined,
@@ -698,24 +560,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   // ============================================================
   // PRODUCT INFORMATION
   // ============================================================
-
   Widget _buildProductInfo() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(
-        18,
-        16,
-        18,
-        18,
-      ),
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
       color: AppColors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ======================================================
           // CATEGORY
-          // ======================================================
-
           Text(
             _product['category'],
             style: const TextStyle(
@@ -726,13 +579,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               fontFamily: 'Poppins',
             ),
           ),
-
           const SizedBox(height: 5),
 
-          // ======================================================
           // PRODUCT NAME
-          // ======================================================
-
           Text(
             _product['name'],
             maxLines: 2,
@@ -745,38 +594,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               fontFamily: 'Poppins',
             ),
           ),
-
           const SizedBox(height: 8),
 
-          // ======================================================
           // RATING
-          // ======================================================
-
           Row(
             children: [
               Row(
                 children: List.generate(
                   5,
-                  (index) {
-                    return const Padding(
-                      padding: EdgeInsets.only(
-                        right: 2,
-                      ),
-                      child: Icon(
-                        Icons.star,
-                        size: 17,
-                        color: AppColors.gold,
-                      ),
-                    );
-                  },
+                  (index) => const Padding(
+                    padding: EdgeInsets.only(right: 2),
+                    child: Icon(Icons.star, size: 17, color: AppColors.gold),
+                  ),
                 ),
               ),
               const SizedBox(width: 7),
               Flexible(
                 child: Text(
-                  '${_product['rating']} · '
-                  '${_product['reviews']} reviews · '
-                  '1.2k sold',
+                  '${_product['rating']} · ${_product['reviews']} reviews · 1.2k sold',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -788,13 +623,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ),
             ],
           ),
-
           const SizedBox(height: 10),
 
-          // ======================================================
           // PRICE
-          // ======================================================
-
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -819,10 +650,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 4,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFEEEE),
                   borderRadius: BorderRadius.circular(6),
@@ -839,13 +667,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ),
             ],
           ),
-
           const SizedBox(height: 16),
 
-          // ======================================================
           // COLOR
-          // ======================================================
-
           const Text(
             'Color',
             style: TextStyle(
@@ -855,16 +679,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               fontFamily: 'Poppins',
             ),
           ),
-
           const SizedBox(height: 7),
-
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: (_product['colors'] as List<String>).map<Widget>(
                 (color) {
                   final bool isSelected = _selectedColor == color;
-
                   final Map<String, Color> colorMap = {
                     'Black': Colors.black,
                     'Blue': Colors.blue,
@@ -872,34 +693,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   };
 
                   return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedColor = color;
-                      });
-                    },
+                    onTap: () => setState(() => _selectedColor = color),
                     child: Container(
-                      margin: const EdgeInsets.only(
-                        right: 9,
-                      ),
+                      margin: const EdgeInsets.only(right: 9),
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 13,
-                        vertical: 8,
-                      ),
+                          horizontal: 13, vertical: 8),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? const Color(
-                                0xFFF1F7F7,
-                              )
+                            ? const Color(0xFFF1F7F7)
                             : AppColors.white,
-                        borderRadius: BorderRadius.circular(
-                          18,
-                        ),
+                        borderRadius: BorderRadius.circular(18),
                         border: Border.all(
                           color: isSelected
                               ? AppColors.primary
-                              : const Color(
-                                  0xFFE5E5E5,
-                                ),
+                              : const Color(0xFFE5E5E5),
                           width: isSelected ? 1.5 : 1,
                         ),
                       ),
@@ -913,9 +720,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               shape: BoxShape.circle,
                             ),
                           ),
-                          const SizedBox(
-                            width: 6,
-                          ),
+                          const SizedBox(width: 6),
                           Text(
                             color,
                             style: TextStyle(
@@ -937,13 +742,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ).toList(),
             ),
           ),
-
           const SizedBox(height: 16),
 
-          // ======================================================
           // QUANTITY
-          // ======================================================
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -958,22 +759,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ),
               Row(
                 children: [
-                  // MINUS
-
                   GestureDetector(
                     onTap: _decreaseQuantity,
                     child: Container(
                       width: 38,
                       height: 38,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(
-                          10,
-                        ),
-                        border: Border.all(
-                          color: const Color(
-                            0xFFE5E5E5,
-                          ),
-                        ),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFFE5E5E5)),
                       ),
                       child: const Center(
                         child: Text(
@@ -987,11 +780,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                     ),
                   ),
-
-                  const SizedBox(
-                    width: 17,
-                  ),
-
+                  const SizedBox(width: 17),
                   Text(
                     '$_quantity',
                     style: const TextStyle(
@@ -1001,27 +790,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       fontFamily: 'Poppins',
                     ),
                   ),
-
-                  const SizedBox(
-                    width: 17,
-                  ),
-
-                  // PLUS
-
+                  const SizedBox(width: 17),
                   GestureDetector(
                     onTap: _increaseQuantity,
                     child: Container(
                       width: 38,
                       height: 38,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(
-                          10,
-                        ),
-                        border: Border.all(
-                          color: const Color(
-                            0xFFE5E5E5,
-                          ),
-                        ),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFFE5E5E5)),
                       ),
                       child: const Center(
                         child: Text(
@@ -1039,16 +816,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ),
             ],
           ),
-
           const SizedBox(height: 7),
 
-          // ======================================================
           // STOCK
-          // ======================================================
-
           Text(
-            'Available Stock: '
-            '${_product['stock']} units',
+            'Available Stock: ${_product['stock']} units',
             style: const TextStyle(
               fontSize: 12,
               color: AppColors.gray,
@@ -1127,9 +899,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   // ============================================================
-  // REVIEWS SECTION
+  // REVIEWS SECTION — ✅ CLICKABLE NA ANG "SEE ALL"
   // ============================================================
-  Widget _buildReviewsSection() {
+  Widget _buildReviewsSection(BuildContext context) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
@@ -1142,7 +914,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
+          // Header: Reviews + See All (CLICKABLE)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -1156,7 +928,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 ),
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  // ✅ I-NAVIGATE SA ALL REVIEWS SCREEN
+                  Navigator.pushNamed(
+                    context,
+                    '/all_reviews',
+                    arguments: widget.productId,
+                  );
+                },
                 child: const Text(
                   'See All',
                   style: TextStyle(
@@ -1208,7 +987,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           const SizedBox(height: 12),
           const Divider(color: AppColors.lightGray),
 
-          // Individual Reviews
+          // Individual Reviews (3 lang muna, "See All" para sa lahat)
           ..._reviews.map((review) => _buildReviewItem(
                 name: review['name'],
                 rating: review['rating'],

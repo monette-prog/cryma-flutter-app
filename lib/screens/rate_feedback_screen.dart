@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../utils/colors.dart';
 
 class RateFeedbackScreen extends StatefulWidget {
@@ -13,6 +15,8 @@ class RateFeedbackScreen extends StatefulWidget {
 class _RateFeedbackScreenState extends State<RateFeedbackScreen> {
   int _rating = 4;
   final TextEditingController _reviewController = TextEditingController();
+  final List<XFile> _selectedMedia = [];
+  final ImagePicker _picker = ImagePicker();
 
   String _getRatingLabel(int rating) {
     switch (rating) {
@@ -31,29 +35,230 @@ class _RateFeedbackScreenState extends State<RateFeedbackScreen> {
     }
   }
 
+  // ============================================================
+  // PICK IMAGE
+  // ============================================================
+  Future<void> _pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+      );
+      if (image != null) {
+        setState(() {
+          _selectedMedia.add(image);
+        });
+        _showSnackBar('Photo added!');
+      }
+    } catch (e) {
+      _showSnackBar('Error picking image: $e');
+    }
+  }
+
+  // ============================================================
+  // PICK VIDEO
+  // ============================================================
+  Future<void> _pickVideo() async {
+    try {
+      final XFile? video = await _picker.pickVideo(
+        source: ImageSource.gallery,
+        maxDuration: const Duration(seconds: 30),
+      );
+      if (video != null) {
+        setState(() {
+          _selectedMedia.add(video);
+        });
+        _showSnackBar('Video added!');
+      }
+    } catch (e) {
+      _showSnackBar('Error picking video: $e');
+    }
+  }
+
+  // ============================================================
+  // SHOW MEDIA OPTIONS (Bottom Sheet)
+  // ============================================================
+  void _showMediaOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          decoration: const BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.lightGray,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Add Media',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ListTile(
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.softRose,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.image_outlined,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  title: const Text(
+                    'Photo',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  subtitle: const Text(
+                    'JPG, PNG — max 5MB',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 11,
+                      color: AppColors.gray,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _pickImage();
+                  },
+                ),
+                ListTile(
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.softRose,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.videocam_outlined,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  title: const Text(
+                    'Video',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  subtitle: const Text(
+                    'MP4 — max 30 seconds',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 11,
+                      color: AppColors.gray,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _pickVideo();
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // ============================================================
+  // REMOVE MEDIA
+  // ============================================================
+  void _removeMedia(int index) {
+    setState(() {
+      _selectedMedia.removeAt(index);
+    });
+    _showSnackBar('Media removed');
+  }
+
+  // ============================================================
+  // SNACKBAR
+  // ============================================================
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(fontFamily: 'Poppins', fontSize: 13),
+        ),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  // ============================================================
+  // SUBMIT REVIEW
+  // ============================================================
+  void _handleSubmit() {
+    if (_reviewController.text.isEmpty && _selectedMedia.isEmpty) {
+      _showAlert('Please write a review or add photos/videos.');
+      return;
+    }
+    _showAlert('Review submitted successfully!');
+  }
+
   void _showAlert(String message) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Review Submitted'),
-        content: Text(message),
+        title: const Text(
+          'Review Submitted',
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        content: Text(
+          message,
+          style: const TextStyle(fontFamily: 'Poppins'),
+        ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: const Text('OK'),
+            child: const Text(
+              'OK',
+              style: TextStyle(color: AppColors.primary, fontFamily: 'Poppins'),
+            ),
           ),
         ],
       ),
     );
   }
 
-  void _handleSubmit() {
-    _showAlert('Review submitted successfully!');
-  }
-
+  // ============================================================
+  // BUILD
+  // ============================================================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,9 +266,7 @@ class _RateFeedbackScreenState extends State<RateFeedbackScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // ============================================================
             // HEADER
-            // ============================================================
             Container(
               color: AppColors.white,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -91,18 +294,14 @@ class _RateFeedbackScreenState extends State<RateFeedbackScreen> {
               ),
             ),
 
-            // ============================================================
             // BODY
-            // ============================================================
             Expanded(
               child: SingleChildScrollView(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Column(
                   children: [
-                    // ============================================================
-                    // PRODUCT CARD - LOCAL IMAGE
-                    // ============================================================
+                    // PRODUCT CARD
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -120,13 +319,12 @@ class _RateFeedbackScreenState extends State<RateFeedbackScreen> {
                       ),
                       child: Row(
                         children: [
-                          // ✅ LOCAL IMAGE - AssetImage
                           Container(
                             width: 64,
                             height: 64,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              color: const Color(0xFFF5F0E8),
+                              color: AppColors.lightGray,
                               image: const DecorationImage(
                                 image:
                                     AssetImage('assets/image/headphones.jpg'),
@@ -135,11 +333,11 @@ class _RateFeedbackScreenState extends State<RateFeedbackScreen> {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          const Expanded(
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
+                                const Text(
                                   'Anker Soundcore Q35',
                                   style: TextStyle(
                                     fontSize: 13,
@@ -148,8 +346,8 @@ class _RateFeedbackScreenState extends State<RateFeedbackScreen> {
                                     fontFamily: 'Poppins',
                                   ),
                                 ),
-                                SizedBox(height: 2),
-                                Text(
+                                const SizedBox(height: 2),
+                                const Text(
                                   'Black · x1',
                                   style: TextStyle(
                                     fontSize: 11,
@@ -157,8 +355,8 @@ class _RateFeedbackScreenState extends State<RateFeedbackScreen> {
                                     fontFamily: 'Poppins',
                                   ),
                                 ),
-                                SizedBox(height: 2),
-                                Text(
+                                const SizedBox(height: 2),
+                                const Text(
                                   '₱2,499',
                                   style: TextStyle(
                                     fontSize: 14,
@@ -175,9 +373,7 @@ class _RateFeedbackScreenState extends State<RateFeedbackScreen> {
                     ),
                     const SizedBox(height: 12),
 
-                    // ============================================================
                     // RATING CARD
-                    // ============================================================
                     Container(
                       padding: const EdgeInsets.symmetric(
                           vertical: 20, horizontal: 16),
@@ -253,9 +449,7 @@ class _RateFeedbackScreenState extends State<RateFeedbackScreen> {
                     ),
                     const SizedBox(height: 12),
 
-                    // ============================================================
                     // REVIEW CARD
-                    // ============================================================
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -320,7 +514,7 @@ class _RateFeedbackScreenState extends State<RateFeedbackScreen> {
                     const SizedBox(height: 12),
 
                     // ============================================================
-                    // ADD PHOTOS CARD - PANTAY NA ANG LAPAD
+                    // ADD PHOTOS/VIDEOS CARD - CLICKABLE NA!
                     // ============================================================
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -340,43 +534,133 @@ class _RateFeedbackScreenState extends State<RateFeedbackScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Add Photos (optional)',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primary,
-                              fontFamily: 'Poppins',
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Add Photos/Videos (optional)',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primary,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                              if (_selectedMedia.isNotEmpty)
+                                Text(
+                                  '${_selectedMedia.length} selected',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: AppColors.primary,
+                                    fontFamily: 'Poppins',
+                                  ),
+                                ),
+                            ],
                           ),
                           const SizedBox(height: 10),
+
+                          // Media preview grid
+                          if (_selectedMedia.isNotEmpty) ...[
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children:
+                                  _selectedMedia.asMap().entries.map((entry) {
+                                final index = entry.key;
+                                final media = entry.value;
+                                final isVideo = media.path
+                                        .toLowerCase()
+                                        .endsWith('.mp4') ||
+                                    media.path.toLowerCase().endsWith('.mov');
+                                return Stack(
+                                  children: [
+                                    Container(
+                                      width: 80,
+                                      height: 80,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                            color: AppColors.lightGray),
+                                        image: !isVideo
+                                            ? DecorationImage(
+                                                image:
+                                                    FileImage(File(media.path)),
+                                                fit: BoxFit.cover,
+                                              )
+                                            : null,
+                                        color:
+                                            isVideo ? AppColors.softRose : null,
+                                      ),
+                                      child: isVideo
+                                          ? const Center(
+                                              child: Icon(
+                                                Icons.play_circle_outline,
+                                                size: 32,
+                                                color: AppColors.primary,
+                                              ),
+                                            )
+                                          : null,
+                                    ),
+                                    Positioned(
+                                      top: -4,
+                                      right: -4,
+                                      child: GestureDetector(
+                                        onTap: () => _removeMedia(index),
+                                        child: Container(
+                                          width: 22,
+                                          height: 22,
+                                          decoration: const BoxDecoration(
+                                            color: AppColors.danger,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.close,
+                                            size: 14,
+                                            color: AppColors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }).toList(),
+                            ),
+                            const SizedBox(height: 12),
+                          ],
+
+                          // Add media button - CLICKABLE
                           GestureDetector(
-                            onTap: () {
-                              // Add photo functionality
-                            },
+                            onTap: _showMediaOptions,
                             child: Container(
                               width: double.infinity,
                               height: 80,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
-                                  color: AppColors.lightGray,
-                                  width: 2,
+                                  color: AppColors.primary,
+                                  width: 1.5,
+                                  style: BorderStyle.solid,
                                 ),
-                                color: const Color(0xFFFAFAFA),
+                                color: AppColors.softRose,
                               ),
-                              child: const Column(
+                              child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.add,
-                                      size: 32, color: Color(0xFFB0B0B0)),
-                                  SizedBox(height: 2),
+                                  const Icon(
+                                    Icons.add_photo_alternate_outlined,
+                                    size: 28,
+                                    color: AppColors.primary,
+                                  ),
+                                  const SizedBox(height: 4),
                                   Text(
-                                    'Add Photo',
-                                    style: TextStyle(
+                                    _selectedMedia.isEmpty
+                                        ? 'Add Photo / Video'
+                                        : 'Add More',
+                                    style: const TextStyle(
                                       fontSize: 12,
-                                      color: Color(0xFFB0B0B0),
+                                      color: AppColors.primary,
                                       fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 ],
@@ -388,9 +672,7 @@ class _RateFeedbackScreenState extends State<RateFeedbackScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // ============================================================
                     // SUBMIT BUTTON
-                    // ============================================================
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(

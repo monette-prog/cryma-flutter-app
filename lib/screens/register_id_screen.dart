@@ -92,9 +92,7 @@ class _RegisterIDScreenState extends State<RegisterIDScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ============================================================
-              // HEADER - magkadikit ang arrow at title
-              // ============================================================
+              // HEADER
               Row(
                 children: [
                   IconButton(
@@ -121,15 +119,11 @@ class _RegisterIDScreenState extends State<RegisterIDScreen> {
               ),
               const SizedBox(height: 10),
 
-              // ============================================================
-              // STEPPER - UPDATED WITH CONNECTING LINE
-              // ============================================================
+              // STEPPER
               _buildStepper(currentStep: 4),
               const SizedBox(height: 14),
 
-              // ============================================================
               // TITLE
-              // ============================================================
               const Text(
                 'Identity Verification',
                 style: TextStyle(
@@ -141,9 +135,7 @@ class _RegisterIDScreenState extends State<RegisterIDScreen> {
               ),
               const SizedBox(height: 4),
 
-              // ============================================================
               // DESCRIPTION
-              // ============================================================
               const Text(
                 'Please upload a valid government-issued ID to verify your identity. This helps keep CRYMA safe for everyone.',
                 style: TextStyle(
@@ -155,9 +147,7 @@ class _RegisterIDScreenState extends State<RegisterIDScreen> {
               ),
               const SizedBox(height: 18),
 
-              // ============================================================
               // UPLOAD CONTAINER
-              // ============================================================
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(
@@ -275,9 +265,7 @@ class _RegisterIDScreenState extends State<RegisterIDScreen> {
               ),
               const SizedBox(height: 14),
 
-              // ============================================================
               // ACCEPTED IDS
-              // ============================================================
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 4),
                 child: Text(
@@ -293,9 +281,7 @@ class _RegisterIDScreenState extends State<RegisterIDScreen> {
               ),
               const SizedBox(height: 24),
 
-              // ============================================================
               // CONTINUE BUTTON
-              // ============================================================
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -327,7 +313,7 @@ class _RegisterIDScreenState extends State<RegisterIDScreen> {
   }
 
   // ============================================================
-  // STEPPER - UPDATED WITH CONNECTING LINE
+  // STEPPER
   // ============================================================
   Widget _buildStepper({required int currentStep}) {
     final List<String> steps = [
@@ -342,7 +328,6 @@ class _RegisterIDScreenState extends State<RegisterIDScreen> {
       height: 64,
       child: Stack(
         children: [
-          // CONNECTING LINE
           Positioned(
             left: 26,
             right: 26,
@@ -361,8 +346,6 @@ class _RegisterIDScreenState extends State<RegisterIDScreen> {
               }),
             ),
           ),
-
-          // CIRCLES + LABELS
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: steps.asMap().entries.map((entry) {
@@ -377,7 +360,6 @@ class _RegisterIDScreenState extends State<RegisterIDScreen> {
                 width: 50,
                 child: Column(
                   children: [
-                    // STEP CIRCLE
                     Container(
                       width: 34,
                       height: 34,
@@ -407,10 +389,7 @@ class _RegisterIDScreenState extends State<RegisterIDScreen> {
                               ),
                       ),
                     ),
-
                     const SizedBox(height: 4),
-
-                    // STEP LABEL
                     Text(
                       label,
                       textAlign: TextAlign.center,
