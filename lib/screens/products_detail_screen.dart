@@ -44,6 +44,43 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     'discount': 24,
   };
 
+  // ============================================================
+  // SPECIFICATION DATA
+  // ============================================================
+  final List<Map<String, String>> _specifications = const [
+    {'label': 'Brand', 'value': 'Anker'},
+    {'label': 'Model', 'value': 'Soundcore Q35'},
+    {'label': 'Color', 'value': 'Black, Blue, White'},
+    {'label': 'Connectivity', 'value': 'Bluetooth 5.0'},
+    {'label': 'Battery Life', 'value': 'Up to 40 hours'},
+    {'label': 'Weight', 'value': '260g'},
+    {'label': 'Warranty', 'value': '1 Year'},
+  ];
+
+  // ============================================================
+  // REVIEWS DATA
+  // ============================================================
+  final List<Map<String, dynamic>> _reviews = const [
+    {
+      'name': 'Maria Santos',
+      'rating': 5.0,
+      'comment': 'Sobrang ganda ng sound quality! Worth it!',
+      'date': '2 weeks ago',
+    },
+    {
+      'name': 'Juan Dela Cruz',
+      'rating': 4.0,
+      'comment': 'Comfortable siya sa tenga, matagal malowbat.',
+      'date': '1 month ago',
+    },
+    {
+      'name': 'Ana Reyes',
+      'rating': 5.0,
+      'comment': 'Fast shipping, maayos ang packaging!',
+      'date': '1 month ago',
+    },
+  ];
+
   String _selectedImage = '';
   String _selectedColor = 'Black';
   int _quantity = 1;
@@ -503,6 +540,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     _buildMainImage(),
                     _buildThumbnails(),
                     _buildProductInfo(),
+                    _buildSpecificationSection(),
+                    _buildReviewsSection(),
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -1014,6 +1053,255 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               fontSize: 12,
               color: AppColors.gray,
               fontFamily: 'Poppins',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // SPECIFICATION SECTION
+  // ============================================================
+  Widget _buildSpecificationSection() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.lightGray),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Specification',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          const SizedBox(height: 12),
+          ..._specifications
+              .map((spec) => _buildSpecRow(spec['label']!, spec['value']!)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSpecRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 110,
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppColors.gray,
+                fontFamily: 'Poppins',
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppColors.darkGray,
+                fontFamily: 'Poppins',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // REVIEWS SECTION
+  // ============================================================
+  Widget _buildReviewsSection() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.lightGray),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Reviews',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+              GestureDetector(
+                onTap: () {},
+                child: const Text(
+                  'See All',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Rating Summary
+          Row(
+            children: [
+              Text(
+                '${_product['rating']}',
+                style: const TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: List.generate(5, (index) {
+                      return const Icon(Icons.star,
+                          size: 16, color: AppColors.gold);
+                    }),
+                  ),
+                  Text(
+                    '${_product['reviews']} reviews',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppColors.gray,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          const Divider(color: AppColors.lightGray),
+
+          // Individual Reviews
+          ..._reviews.map((review) => _buildReviewItem(
+                name: review['name'],
+                rating: review['rating'],
+                comment: review['comment'],
+                date: review['date'],
+              )),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReviewItem({
+    required String name,
+    required double rating,
+    required String comment,
+    required String date,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              // Avatar
+              Container(
+                width: 32,
+                height: 32,
+                decoration: const BoxDecoration(
+                  color: AppColors.softRose,
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    name[0],
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.darkGray,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        ...List.generate(5, (index) {
+                          return Icon(
+                            index < rating.floor()
+                                ? Icons.star
+                                : Icons.star_border,
+                            size: 12,
+                            color: AppColors.gold,
+                          );
+                        }),
+                        const SizedBox(width: 6),
+                        Text(
+                          date,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppColors.gray,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            comment,
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.textSecondary,
+              fontFamily: 'Poppins',
+              height: 1.5,
             ),
           ),
         ],
