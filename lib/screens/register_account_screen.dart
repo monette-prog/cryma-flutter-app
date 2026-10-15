@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../utils/colors.dart';
+import '../utils/validators.dart';
 
 class RegisterAccountScreen extends StatefulWidget {
   const RegisterAccountScreen({
@@ -23,6 +25,9 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+
+  final _formKey = GlobalKey<FormState>();
+  final _confirmPasswordKey = GlobalKey<FormFieldState>();
 
   bool _showPassword = false;
   bool _showConfirmPassword = false;
@@ -52,26 +57,28 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
   }
 
   void _handleSubmit() {
-    if (_passwordController.text.isEmpty ||
-        _confirmPasswordController.text.isEmpty) {
-      _showAlert('Please fill in all required fields.');
+    // 1. Validate password field
+    final isPasswordValid = _formKey.currentState?.validate() ?? false;
+
+    // 2. Validate confirm password field
+    _confirmPasswordKey.currentState?.validate();
+    final isConfirmValid =
+        _confirmPasswordController.text == _passwordController.text;
+
+    // ⛔ Kung may invalid, hindi mag-submit
+    if (!isPasswordValid || !isConfirmValid) {
       return;
     }
 
-    if (_passwordController.text != _confirmPasswordController.text) {
-      _showAlert('Passwords do not match.');
-      return;
-    }
-
+    // 3. Check terms
     if (!_agreeTerms) {
       _showAlert('Please agree to the Terms & Conditions.');
       return;
     }
 
-    // ✅ GET EMAIL FROM CONTACT DATA (no fallback)
+    // 4. Get email from contactData
     final email = widget.contactData?['email'] as String? ?? '';
 
-    // Debug para makita kung may email
     print('📧 Email mula sa contactData: $email');
     print('📦 contactData: ${widget.contactData}');
 
@@ -80,7 +87,7 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
       return;
     }
 
-    // ✅ NAVIGATE TO OTP VERIFICATION
+    // 5. Navigate to OTP
     Navigator.pushReplacementNamed(
       context,
       '/otp_verification',
@@ -88,18 +95,10 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
     );
   }
 
-  String _getPasswordStrength(String password) {
-    if (password.isEmpty) return '';
-    if (password.length < 6) return 'Weak';
-    if (password.length < 8) return 'Fair';
-    if (password.length < 10) return 'Good';
-    return 'Strong';
-  }
-
   Color _getPasswordStrengthColor(String password) {
     if (password.isEmpty) return AppColors.gray;
 
-    switch (_getPasswordStrength(password)) {
+    switch (AppValidators.passwordStrength(password)) {
       case 'Weak':
         return Colors.red;
       case 'Fair':
@@ -126,238 +125,240 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
             horizontal: screenWidth * 0.05,
             vertical: screenHeight * 0.02,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // HEADER
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: AppColors.primary,
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Create Account',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                  const Spacer(),
-                ],
-              ),
-              const SizedBox(height: 10),
-
-              // STEPPER
-              _buildStepper(currentStep: 5),
-              const SizedBox(height: 14),
-
-              // DESCRIPTION
-              const Text(
-                'Set a secure password to protect your account.',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.gray,
-                  fontFamily: 'Poppins',
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // PASSWORD
-              _buildLabel('PASSWORD *'),
-              const SizedBox(height: 4),
-              _buildPasswordField(
-                controller: _passwordController,
-                showPassword: _showPassword,
-                onToggle: () {
-                  setState(() {
-                    _showPassword = !_showPassword;
-                  });
-                },
-                onChanged: (_) {
-                  setState(() {});
-                },
-              ),
-              const SizedBox(height: 6),
-
-              // PASSWORD STRENGTH BARS
-              if (_passwordController.text.isNotEmpty) ...[
+          child: Form(
+            key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // HEADER
                 Row(
                   children: [
-                    Expanded(
-                      child: _strengthBar(active: true),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: AppColors.primary,
+                      ),
+                      onPressed: () => Navigator.pop(context),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                     ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: _strengthBar(active: true),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Create Account',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primary,
+                        fontFamily: 'Poppins',
+                      ),
                     ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: _strengthBar(active: true),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: _strengthBar(active: false),
-                    ),
+                    const Spacer(),
                   ],
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  '${_getPasswordStrength(_passwordController.text)} password strength',
+                const SizedBox(height: 10),
+
+                // STEPPER
+                _buildStepper(currentStep: 5),
+                const SizedBox(height: 14),
+
+                // DESCRIPTION
+                const Text(
+                  'Set a secure password to protect your account.',
                   style: TextStyle(
-                    fontSize: 11,
-                    color: _getPasswordStrengthColor(
-                      _passwordController.text,
-                    ),
+                    fontSize: 13,
+                    color: AppColors.gray,
                     fontFamily: 'Poppins',
+                    height: 1.5,
                   ),
                 ),
-              ],
-              const SizedBox(height: 14),
+                const SizedBox(height: 20),
 
-              // CONFIRM PASSWORD
-              _buildLabel('CONFIRM PASSWORD *'),
-              const SizedBox(height: 4),
-              _buildPasswordField(
-                controller: _confirmPasswordController,
-                showPassword: _showConfirmPassword,
-                onToggle: () {
-                  setState(() {
-                    _showConfirmPassword = !_showConfirmPassword;
-                  });
-                },
-                onChanged: (_) {
-                  setState(() {});
-                },
-              ),
-              const SizedBox(height: 14),
+                // PASSWORD
+                _buildLabel('PASSWORD *'),
+                const SizedBox(height: 4),
+                _buildPasswordField(
+                  controller: _passwordController,
+                  showPassword: _showPassword,
+                  hintText: 'Minimum 8 characters',
+                  validator: AppValidators.password,
+                  onToggle: () {
+                    setState(() {
+                      _showPassword = !_showPassword;
+                    });
+                  },
+                  onChanged: (_) {
+                    setState(() {});
+                    if (_confirmPasswordController.text.isNotEmpty) {
+                      _confirmPasswordKey.currentState?.validate();
+                    }
+                  },
+                ),
+                const SizedBox(height: 6),
 
-              // TERMS AND CONDITIONS
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _agreeTerms = !_agreeTerms;
-                  });
-                },
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    border: Border.all(
-                      color: AppColors.lightGray,
-                      width: 1.5,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                // PASSWORD STRENGTH BARS
+                if (_passwordController.text.isNotEmpty) ...[
+                  Row(
                     children: [
-                      Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color:
-                              _agreeTerms ? AppColors.primary : AppColors.white,
-                          border: Border.all(
-                            color: _agreeTerms
-                                ? AppColors.primary
-                                : AppColors.gray,
-                            width: 1.5,
-                          ),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: _agreeTerms
-                            ? const Icon(
-                                Icons.check,
-                                size: 14,
-                                color: AppColors.white,
-                              )
-                            : null,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: RichText(
-                          text: const TextSpan(
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: AppColors.gray,
-                              fontFamily: 'Poppins',
-                              height: 1.5,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: 'I agree to the ',
-                              ),
-                              TextSpan(
-                                text: 'Terms & Conditions',
-                                style: TextStyle(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              TextSpan(
-                                text: ' and ',
-                              ),
-                              TextSpan(
-                                text: 'Privacy Policy',
-                                style: TextStyle(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              TextSpan(
-                                text: ' of CRYMA.',
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      Expanded(child: _strengthBar(active: true)),
+                      const SizedBox(width: 6),
+                      Expanded(child: _strengthBar(active: true)),
+                      const SizedBox(width: 6),
+                      Expanded(child: _strengthBar(active: true)),
+                      const SizedBox(width: 6),
+                      Expanded(child: _strengthBar(active: false)),
                     ],
                   ),
-                ),
-              ),
-              const SizedBox(height: 18),
-
-              // SUBMIT BUTTON
-              SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: ElevatedButton(
-                  onPressed: _handleSubmit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: AppColors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: const Text(
-                    'Submit Registration',
+                  const SizedBox(height: 6),
+                  Text(
+                    '${AppValidators.passwordStrength(_passwordController.text)} password strength',
                     style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.white,
+                      fontSize: 11,
+                      color: _getPasswordStrengthColor(
+                        _passwordController.text,
+                      ),
                       fontFamily: 'Poppins',
                     ),
                   ),
+                ],
+                const SizedBox(height: 14),
+
+                // CONFIRM PASSWORD
+                _buildLabel('CONFIRM PASSWORD *'),
+                const SizedBox(height: 4),
+                _buildPasswordField(
+                  controller: _confirmPasswordController,
+                  showPassword: _showConfirmPassword,
+                  hintText: 'Re-enter your password',
+                  fieldKey: _confirmPasswordKey,
+                  validator: (value) => AppValidators.confirmPassword(
+                    value,
+                    _passwordController.text,
+                  ),
+                  onToggle: () {
+                    setState(() {
+                      _showConfirmPassword = !_showConfirmPassword;
+                    });
+                  },
+                  onChanged: (_) {
+                    setState(() {});
+                  },
                 ),
-              ),
-              const SizedBox(height: 16),
-            ],
+                const SizedBox(height: 14),
+
+                // TERMS AND CONDITIONS
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _agreeTerms = !_agreeTerms;
+                    });
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      border: Border.all(
+                        color: AppColors.lightGray,
+                        width: 1.5,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: _agreeTerms
+                                ? AppColors.primary
+                                : AppColors.white,
+                            border: Border.all(
+                              color: _agreeTerms
+                                  ? AppColors.primary
+                                  : AppColors.gray,
+                              width: 1.5,
+                            ),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: _agreeTerms
+                              ? const Icon(
+                                  Icons.check,
+                                  size: 14,
+                                  color: AppColors.white,
+                                )
+                              : null,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: RichText(
+                            text: const TextSpan(
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: AppColors.gray,
+                                fontFamily: 'Poppins',
+                                height: 1.5,
+                              ),
+                              children: [
+                                TextSpan(text: 'I agree to the '),
+                                TextSpan(
+                                  text: 'Terms & Conditions',
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                TextSpan(text: ' and '),
+                                TextSpan(
+                                  text: 'Privacy Policy',
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                TextSpan(text: ' of CRYMA.'),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
+
+                // ✅ SUBMIT BUTTON — nakalink na sa _handleSubmit
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: ElevatedButton(
+                    onPressed: _handleSubmit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: AppColors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Text(
+                      'Submit Registration',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.white,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
       ),
@@ -485,16 +486,18 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
   }
 
   // ============================================================
-  // PASSWORD FIELD
+  // PASSWORD FIELD (may errorMaxLines: 2 na)
   // ============================================================
   Widget _buildPasswordField({
     required TextEditingController controller,
     required bool showPassword,
+    required String hintText,
     required VoidCallback onToggle,
     required ValueChanged<String> onChanged,
+    String? Function(String?)? validator,
+    GlobalKey<FormFieldState>? fieldKey,
   }) {
     return Container(
-      height: 52,
       decoration: BoxDecoration(
         color: AppColors.white,
         border: Border.all(
@@ -504,42 +507,59 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(width: 14),
-          const Icon(
-            Icons.shield_outlined,
-            color: AppColors.gray,
-            size: 22,
+          const Padding(
+            padding: EdgeInsets.only(top: 15),
+            child: Icon(
+              Icons.shield_outlined,
+              color: AppColors.gray,
+              size: 22,
+            ),
           ),
           Expanded(
-            child: TextField(
+            child: TextFormField(
+              key: fieldKey,
               controller: controller,
               obscureText: !showPassword,
               onChanged: onChanged,
+              validator: validator,
+              inputFormatters: [
+                LengthLimitingTextInputFormatter(30),
+                FilteringTextInputFormatter.deny(RegExp(r'\s')),
+              ],
+              textInputAction: TextInputAction.done,
               style: const TextStyle(
                 fontSize: 13,
                 color: AppColors.darkGray,
                 fontFamily: 'Poppins',
               ),
-              decoration: const InputDecoration(
-                hintText: '***********',
-                hintStyle: TextStyle(
+              decoration: InputDecoration(
+                hintText: hintText,
+                hintStyle: const TextStyle(
                   fontSize: 13,
                   color: AppColors.gray,
                   fontFamily: 'Poppins',
                 ),
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(
+                contentPadding: const EdgeInsets.symmetric(
                   horizontal: 12,
-                  vertical: 12,
+                  vertical: 15,
                 ),
+                errorStyle: const TextStyle(
+                  fontSize: 11,
+                  fontFamily: 'Poppins',
+                  height: 1.3,
+                ),
+                errorMaxLines: 2,
               ),
             ),
           ),
           GestureDetector(
             onTap: onToggle,
             child: Padding(
-              padding: const EdgeInsets.only(right: 14),
+              padding: const EdgeInsets.only(right: 14, top: 15),
               child: Icon(
                 showPassword
                     ? Icons.visibility_outlined
@@ -557,9 +577,7 @@ class _RegisterAccountScreenState extends State<RegisterAccountScreen> {
   // ============================================================
   // PASSWORD STRENGTH BAR
   // ============================================================
-  Widget _strengthBar({
-    required bool active,
-  }) {
+  Widget _strengthBar({required bool active}) {
     return Container(
       height: 4,
       decoration: BoxDecoration(

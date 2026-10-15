@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../utils/colors.dart';
+import '../utils/validators.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,7 +13,24 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  final _formKey = GlobalKey<FormState>();
+
   bool _showPassword = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _handleLogin() {
+    if (_formKey.currentState?.validate() ?? false) {
+      // TODO: I-connect kay Ciara para sa actual login API
+      Navigator.pushReplacementNamed(context, '/home');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,173 +54,59 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // CRYMA Logo
-              Text(
-                'CRYMA',
-                style: TextStyle(
-                  fontSize: titleFontSize,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
-                  fontFamily: 'Poppins',
-                  letterSpacing: titleFontSize * 0.08,
-                ),
-              ),
-              const SizedBox(height: 10),
-              // Welcome Back
-              Text(
-                'Welcome Back',
-                style: TextStyle(
-                  fontSize: headingFontSize,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
-                  fontFamily: 'Poppins',
-                ),
-              ),
-              const SizedBox(height: 4),
-              // Subtitle
-              Text(
-                'Sign in to your account',
-                style: TextStyle(
-                  fontSize: subtitleFontSize,
-                  color: AppColors.gray,
-                  fontFamily: 'Poppins',
-                ),
-              ),
-              const SizedBox(height: 24),
-              // EMAIL ADDRESS Label
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'EMAIL ADDRESS',
+        child: SingleChildScrollView(
+          // ✅ FIX: Scrollable na
+          padding: EdgeInsets.symmetric(
+            horizontal: screenWidth * 0.06,
+            vertical: screenHeight * 0.03,
+          ),
+          child: Form(
+            // ✅ NEW: Form wrapper
+            key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction, // ✅ NEW
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(height: screenHeight * 0.05), // ✅ Spacer sa taas
+                // CRYMA Logo
+                Text(
+                  'CRYMA',
                   style: TextStyle(
-                    fontSize: labelFontSize,
+                    fontSize: titleFontSize,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                    fontFamily: 'Poppins',
+                    letterSpacing: titleFontSize * 0.08,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Welcome Back
+                Text(
+                  'Welcome Back',
+                  style: TextStyle(
+                    fontSize: headingFontSize,
                     fontWeight: FontWeight.w600,
                     color: AppColors.primary,
                     fontFamily: 'Poppins',
                   ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              // Email Input
-              Container(
-                height: inputHeight,
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  border: Border.all(color: AppColors.lightGray),
-                  borderRadius: BorderRadius.circular(inputHeight / 2),
-                ),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 14),
-                    Icon(Icons.email_outlined,
-                        color: AppColors.gray, size: iconSize),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: TextField(
-                        controller: _emailController,
-                        style: TextStyle(
-                          fontSize: inputFontSize,
-                          fontFamily: 'Poppins',
-                          color: AppColors.darkGray,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: 'your@email.com',
-                          hintStyle: TextStyle(
-                            fontSize: inputFontSize,
-                            color: AppColors.gray,
-                            fontFamily: 'Poppins',
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                        keyboardType: TextInputType.emailAddress,
-                        autocorrect: false,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              // PASSWORD Label
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'PASSWORD',
+                const SizedBox(height: 4),
+                // Subtitle
+                Text(
+                  'Sign in to your account',
                   style: TextStyle(
-                    fontSize: labelFontSize,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
+                    fontSize: subtitleFontSize,
+                    color: AppColors.gray,
                     fontFamily: 'Poppins',
                   ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              // Password Input
-              Container(
-                height: inputHeight,
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  border: Border.all(color: AppColors.lightGray),
-                  borderRadius: BorderRadius.circular(inputHeight / 2),
-                ),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 14),
-                    Icon(Icons.lock_outline,
-                        color: AppColors.gray, size: iconSize),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: TextField(
-                        controller: _passwordController,
-                        obscureText: !_showPassword,
-                        style: TextStyle(
-                          fontSize: inputFontSize,
-                          fontFamily: 'Poppins',
-                          color: AppColors.darkGray,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: '********',
-                          hintStyle: TextStyle(
-                            fontSize: inputFontSize,
-                            color: AppColors.gray,
-                            fontFamily: 'Poppins',
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _showPassword = !_showPassword;
-                        });
-                      },
-                      child: Icon(
-                        _showPassword ? Icons.visibility : Icons.visibility_off,
-                        color: AppColors.gray,
-                        size: iconSize,
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 4),
-              // Forgot Password
-              Align(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pushNamed(context, '/forgot_password');
-                  },
+                const SizedBox(height: 24),
+
+                // EMAIL ADDRESS Label
+                Align(
+                  alignment: Alignment.centerLeft,
                   child: Text(
-                    'Forgot Password?',
+                    'EMAIL ADDRESS',
                     style: TextStyle(
                       fontSize: labelFontSize,
                       fontWeight: FontWeight.w600,
@@ -210,117 +115,280 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              // Login Button
-              SizedBox(
-                width: double.infinity,
-                height: buttonHeight,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/home');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(buttonRadius),
-                    ),
-                  ),
+                const SizedBox(height: 4),
+
+                // ✅ UPDATED: Email Input with validation
+                _buildInputField(
+                  controller: _emailController,
+                  hintText: 'your@email.com',
+                  icon: Icons.email_outlined,
+                  inputHeight: inputHeight,
+                  inputFontSize: inputFontSize,
+                  iconSize: iconSize,
+                  keyboardType: TextInputType.emailAddress,
+                  validator: AppValidators.email, // ✅ NEW
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(100),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // PASSWORD Label
+                Align(
+                  alignment: Alignment.centerLeft,
                   child: Text(
-                    'Login',
+                    'PASSWORD',
                     style: TextStyle(
-                      fontSize: buttonFontSize,
+                      fontSize: labelFontSize,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.white,
+                      color: AppColors.primary,
                       fontFamily: 'Poppins',
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              // Create Account Link
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Don't have an account? ",
-                    style: TextStyle(
-                      fontSize: linkFontSize,
+                const SizedBox(height: 4),
+
+                // ✅ UPDATED: Password Input with validation
+                _buildInputField(
+                  controller: _passwordController,
+                  hintText: '********',
+                  icon: Icons.lock_outline,
+                  inputHeight: inputHeight,
+                  inputFontSize: inputFontSize,
+                  iconSize: iconSize,
+                  obscureText: !_showPassword,
+                  validator: (value) {
+                    // ✅ Simple validation for login
+                    if (value == null || value.isEmpty) {
+                      return 'Password is required';
+                    }
+                    return null;
+                  },
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(30),
+                  ],
+                  suffixIcon: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _showPassword = !_showPassword;
+                      });
+                    },
+                    child: Icon(
+                      _showPassword ? Icons.visibility : Icons.visibility_off,
                       color: AppColors.gray,
-                      fontFamily: 'Poppins',
+                      size: iconSize,
                     ),
                   ),
-                  GestureDetector(
+                ),
+                const SizedBox(height: 4),
+
+                // Forgot Password
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, '/register_personal');
+                      Navigator.pushNamed(context, '/forgot_password');
                     },
                     child: Text(
-                      'Create Account',
+                      'Forgot Password?',
                       style: TextStyle(
-                        fontSize: linkFontSize,
+                        fontSize: labelFontSize,
                         fontWeight: FontWeight.w600,
                         color: AppColors.primary,
                         fontFamily: 'Poppins',
                       ),
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              // Divider
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: 1,
-                      color: AppColors.lightGray,
+                ),
+                const SizedBox(height: 20),
+
+                // ✅ UPDATED: Login Button with _handleLogin
+                SizedBox(
+                  width: double.infinity,
+                  height: buttonHeight,
+                  child: ElevatedButton(
+                    onPressed: _handleLogin, // ✅ UPDATED
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(buttonRadius),
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: Text(
-                      'or continue with',
+                      'Login',
                       style: TextStyle(
-                        fontSize: labelFontSize,
-                        color: AppColors.gray,
+                        fontSize: buttonFontSize,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.white,
                         fontFamily: 'Poppins',
                       ),
                     ),
                   ),
-                  Expanded(
-                    child: Container(
-                      height: 1,
-                      color: AppColors.lightGray,
+                ),
+                const SizedBox(height: 16),
+
+                // Create Account Link
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Don't have an account? ",
+                      style: TextStyle(
+                        fontSize: linkFontSize,
+                        color: AppColors.gray,
+                        fontFamily: 'Poppins',
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              // Social Buttons - gamit ang Icons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildSocialButton(
-                    icon: Icons.g_mobiledata,
-                    label: 'Google',
-                    color: '#DB4437',
-                    size: screenWidth * 0.05,
-                    buttonSize: screenHeight * 0.065,
-                  ),
-                  const SizedBox(width: 12),
-                  _buildSocialButton(
-                    icon: Icons.facebook,
-                    label: 'Facebook',
-                    color: '#1877F2',
-                    size: screenWidth * 0.05,
-                    buttonSize: screenHeight * 0.065,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-            ],
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, '/register_personal');
+                      },
+                      child: Text(
+                        'Create Account',
+                        style: TextStyle(
+                          fontSize: linkFontSize,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                // Divider
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: AppColors.lightGray,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        'or continue with',
+                        style: TextStyle(
+                          fontSize: labelFontSize,
+                          color: AppColors.gray,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: AppColors.lightGray,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Social Buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildSocialButton(
+                      icon: Icons.g_mobiledata,
+                      label: 'Google',
+                      color: '#DB4437',
+                      size: screenWidth * 0.05,
+                      buttonSize: screenHeight * 0.065,
+                    ),
+                    const SizedBox(width: 12),
+                    _buildSocialButton(
+                      icon: Icons.facebook,
+                      label: 'Facebook',
+                      color: '#1877F2',
+                      size: screenWidth * 0.05,
+                      buttonSize: screenHeight * 0.065,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // ✅ NEW: Reusable Input Field (may validation)
+  // ============================================================
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String hintText,
+    required IconData icon,
+    required double inputHeight,
+    required double inputFontSize,
+    required double iconSize,
+    TextInputType? keyboardType,
+    bool obscureText = false,
+    String? Function(String?)? validator,
+    List<TextInputFormatter>? inputFormatters,
+    Widget? suffixIcon,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        border: Border.all(color: AppColors.lightGray),
+        borderRadius: BorderRadius.circular(inputHeight / 2),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(width: 14),
+          Padding(
+            padding: const EdgeInsets.only(top: 14),
+            child: Icon(icon, color: AppColors.gray, size: iconSize),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: TextFormField(
+              // ✅ UPDATED: TextField → TextFormField
+              controller: controller,
+              obscureText: obscureText,
+              keyboardType: keyboardType,
+              autocorrect: false,
+              validator: validator,
+              inputFormatters: inputFormatters,
+              style: TextStyle(
+                fontSize: inputFontSize,
+                fontFamily: 'Poppins',
+                color: AppColors.darkGray,
+              ),
+              decoration: InputDecoration(
+                hintText: hintText,
+                hintStyle: TextStyle(
+                  fontSize: inputFontSize,
+                  color: AppColors.gray,
+                  fontFamily: 'Poppins',
+                ),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 14,
+                ),
+                errorStyle: TextStyle(
+                  fontSize: inputFontSize * 0.75,
+                  fontFamily: 'Poppins',
+                  height: 1.2,
+                ),
+              ),
+            ),
+          ),
+          if (suffixIcon != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8, right: 14),
+              child: suffixIcon,
+            )
+          else
+            const SizedBox(width: 14),
+        ],
       ),
     );
   }
