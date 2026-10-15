@@ -12,18 +12,23 @@ class RegistrationPendingScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
+        child: SingleChildScrollView(
+          // ✅ FIX: Scrollable na
+          padding: EdgeInsets.symmetric(
+            horizontal: screenWidth * 0.06,
+            vertical: screenHeight * 0.03,
+          ),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // ✅ Spacer sa taas para may breathing room
+              SizedBox(height: screenHeight * 0.04),
+
               // ============================================================
               // 1. LAYERED SUCCESS ICON
               // ============================================================
               Stack(
                 alignment: Alignment.center,
                 children: [
-                  // Outer ring (lightest)
                   Container(
                     width: 110,
                     height: 110,
@@ -35,7 +40,6 @@ class RegistrationPendingScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Middle ring (slightly darker)
                   Container(
                     width: 90,
                     height: 90,
@@ -47,7 +51,6 @@ class RegistrationPendingScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Inner circle (dark teal with checkmark)
                   Container(
                     width: 70,
                     height: 70,
@@ -65,9 +68,7 @@ class RegistrationPendingScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // ============================================================
-              // 2. TITLE
-              // ============================================================
+              // TITLE
               const Text(
                 'Registration Submitted',
                 textAlign: TextAlign.center,
@@ -80,9 +81,7 @@ class RegistrationPendingScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
 
-              // ============================================================
-              // 3. DESCRIPTION
-              // ============================================================
+              // DESCRIPTION
               const Text(
                 'Your registration has been submitted successfully. Please wait for the administrator\'s approval. The result will be sent to your registered email address.',
                 textAlign: TextAlign.center,
@@ -95,9 +94,7 @@ class RegistrationPendingScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // ============================================================
-              // 4. INFORMATION CARD (EMAIL + STATUS)
-              // ============================================================
+              // INFORMATION CARD
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -114,12 +111,9 @@ class RegistrationPendingScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    // ============================================================
-                    // 4a. EMAIL ROW
-                    // ============================================================
+                    // EMAIL ROW
                     Row(
                       children: [
-                        // Icon container (left)
                         Container(
                           width: 40,
                           height: 40,
@@ -134,12 +128,11 @@ class RegistrationPendingScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        // Text content (right)
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
+                            children: const [
+                              Text(
                                 'EMAIL',
                                 style: TextStyle(
                                   fontSize: 10,
@@ -148,7 +141,7 @@ class RegistrationPendingScreen extends StatelessWidget {
                                   fontFamily: 'Poppins',
                                 ),
                               ),
-                              const Text(
+                              Text(
                                 'juan.delacruz@email.com',
                                 style: TextStyle(
                                   fontSize: 14,
@@ -163,17 +156,12 @@ class RegistrationPendingScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    // ============================================================
-                    // DIVIDER
-                    // ============================================================
                     const Divider(color: AppColors.lightGray),
                     const SizedBox(height: 12),
-                    // ============================================================
-                    // 4b. STATUS ROW
-                    // ============================================================
+
+                    // STATUS ROW
                     Row(
                       children: [
-                        // Icon container (left)
                         Container(
                           width: 40,
                           height: 40,
@@ -188,7 +176,6 @@ class RegistrationPendingScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        // Text content (right)
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,9 +221,7 @@ class RegistrationPendingScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // ============================================================
-              // 5. INFORMATION NOTICE BOX
-              // ============================================================
+              // INFORMATION NOTICE BOX
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
@@ -253,13 +238,13 @@ class RegistrationPendingScreen extends StatelessWidget {
                     const SizedBox(width: 10),
                     Expanded(
                       child: RichText(
-                        text: TextSpan(
-                          style: const TextStyle(
+                        text: const TextSpan(
+                          style: TextStyle(
                             fontSize: 13,
                             color: AppColors.gray,
                             fontFamily: 'Poppins',
                           ),
-                          children: const [
+                          children: [
                             TextSpan(
                               text: 'Review typically takes ',
                             ),
@@ -282,9 +267,7 @@ class RegistrationPendingScreen extends StatelessWidget {
               ),
               const SizedBox(height: 30),
 
-              // ============================================================
-              // 6. BACK TO LOGIN BUTTON (CENTERED, NOT FULL WIDTH)
-              // ============================================================
+              // BACK TO LOGIN BUTTON
               Center(
                 child: SizedBox(
                   width: screenWidth * 0.6,
