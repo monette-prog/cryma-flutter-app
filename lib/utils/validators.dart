@@ -10,10 +10,30 @@ class AppValidators {
     }
     final emailRegex = RegExp(r'^[\w\.\-]+@[\w\-]+\.[\w\.\-]+$');
     if (!emailRegex.hasMatch(value)) {
-      return 'Please enter a valid email';
+      return 'Invalid email format';
     }
     if (value.length > 100) {
       return 'Email is too long';
+    }
+    return null;
+  }
+
+  // ============================================================
+  // MOBILE NUMBER (PH format — 11 digits, starts with 09)
+  // ============================================================
+  static String? mobileNumber(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Contact number is required';
+    }
+    final cleaned = value.replaceAll(RegExp(r'[\s\-]'), '');
+    if (cleaned.length != 11) {
+      return 'Must be 11 digits';
+    }
+    if (!cleaned.startsWith('09')) {
+      return 'Must start with 09';
+    }
+    if (!RegExp(r'^[0-9]+$').hasMatch(cleaned)) {
+      return 'Numbers only';
     }
     return null;
   }
@@ -26,16 +46,16 @@ class AppValidators {
       return 'Password is required';
     }
     if (value.length < 8) {
-      return 'Password must be at least 8 characters';
+      return 'Min 8 characters required';
     }
     if (!RegExp(r'[A-Za-z]').hasMatch(value)) {
-      return 'Password must contain at least 1 letter';
+      return 'Add at least 1 letter';
     }
     if (!RegExp(r'[0-9]').hasMatch(value)) {
-      return 'Password must contain at least 1 number';
+      return 'Add at least 1 number';
     }
     if (value.length > 30) {
-      return 'Password is too long (max 30 characters)';
+      return 'Max 30 characters';
     }
     return null;
   }
@@ -45,7 +65,7 @@ class AppValidators {
   // ============================================================
   static String? confirmPassword(String? value, String originalPassword) {
     if (value == null || value.isEmpty) {
-      return 'Please confirm your password';
+      return 'Please confirm password';
     }
     if (value != originalPassword) {
       return 'Passwords do not match';
@@ -72,5 +92,43 @@ class AppValidators {
       return 'Good';
     }
     return 'Fair';
+  }
+
+  // ============================================================
+  // NAME (Last Name, First Name)
+  // ============================================================
+  static String? name(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'This field is required';
+    }
+    if (value.trim().length < 2) {
+      return 'Min 2 characters required';
+    }
+    if (value.trim().length > 50) {
+      return 'Max 50 characters';
+    }
+    final nameRegex = RegExp(r"^[a-zA-ZñÑ\s\-'\.]+$");
+    if (!nameRegex.hasMatch(value)) {
+      return 'Letters only';
+    }
+    return null;
+  }
+
+  // ============================================================
+  // MIDDLE INITIAL (Optional, 1-2 chars)
+  // ============================================================
+  static String? middleInitial(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return null;
+    }
+    final trimmed = value.trim();
+    if (trimmed.length > 2) {
+      return 'Max 2 characters';
+    }
+    final miRegex = RegExp(r'^[a-zA-Z]\.?$');
+    if (!miRegex.hasMatch(trimmed)) {
+      return 'Invalid format (e.g., R.)';
+    }
+    return null;
   }
 }

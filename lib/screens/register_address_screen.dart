@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../utils/colors.dart';
 
 // ============================================================
-// 📍 MOCK DATA - PHILIPPINES
+// 📍 MOCK DATA - PHILIPPINES (walang binago)
 // ============================================================
 class AddressData {
   static final List<String> provinces = [
@@ -351,6 +352,8 @@ class _RegisterAddressScreenState extends State<RegisterAddressScreen> {
   final TextEditingController _streetController = TextEditingController();
   final TextEditingController _otherDetailsController = TextEditingController();
 
+  final _formKey = GlobalKey<FormState>(); // ✅ NEW
+
   bool _showProvince = false;
   bool _showMunicipality = false;
   bool _showBarangay = false;
@@ -404,12 +407,19 @@ class _RegisterAddressScreenState extends State<RegisterAddressScreen> {
   }
 
   void _handleContinue() {
+    // 1. Validate dropdowns
     if (_selectedProvince.isEmpty ||
         _selectedMunicipality.isEmpty ||
         _selectedBarangay.isEmpty) {
       _showAlert(
         'Please select Province, Municipality, and Barangay.',
       );
+      return;
+    }
+
+    // 2. Validate text fields
+    final isFormValid = _formKey.currentState?.validate() ?? false;
+    if (!isFormValid) {
       return;
     }
 
@@ -433,9 +443,6 @@ class _RegisterAddressScreenState extends State<RegisterAddressScreen> {
     );
   }
 
-  // ============================================================
-  // BUILD
-  // ============================================================
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -449,212 +456,241 @@ class _RegisterAddressScreenState extends State<RegisterAddressScreen> {
             horizontal: screenWidth * 0.05,
             vertical: screenHeight * 0.02,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ============================================================
-              // HEADER - magkadikit ang arrow at title
-              // ============================================================
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: AppColors.primary,
+          child: Form(
+            // ✅ NEW: Form wrapper
+            key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // HEADER
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: AppColors.primary,
+                      ),
+                      onPressed: () => Navigator.pop(context),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                     ),
-                    onPressed: () => Navigator.pop(context),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Create Account',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
-                      fontFamily: 'Poppins',
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Create Account',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primary,
+                        fontFamily: 'Poppins',
+                      ),
                     ),
-                  ),
-                  const Spacer(),
-                ],
-              ),
-              const SizedBox(height: 10),
-
-              // ============================================================
-              // STEPPER - UPDATED WITH CONNECTING LINE
-              // ============================================================
-              _buildStepper(currentStep: 3),
-              const SizedBox(height: 14),
-
-              // ============================================================
-              // INTRO
-              // ============================================================
-              const Text(
-                'Where are you located?',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.gray,
-                  fontFamily: 'Poppins',
+                    const Spacer(),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 18),
+                const SizedBox(height: 10),
 
-              // ============================================================
-              // LOCATION SECTION
-              // ============================================================
-              _buildSectionTitle('LOCATION (API-BASED)'),
-              const SizedBox(height: 6),
+                // STEPPER
+                _buildStepper(currentStep: 3),
+                const SizedBox(height: 14),
 
-              // PROVINCE
-              _buildLabel('PROVINCE *'),
-              const SizedBox(height: 4),
-              _buildDropdown(
-                value: _selectedProvince,
-                hint: 'Select province',
-                isOpen: _showProvince,
-                items: AddressData.provinces,
-                onToggle: () {
-                  setState(() {
-                    _showProvince = !_showProvince;
-                    _showMunicipality = false;
-                    _showBarangay = false;
-                  });
-                },
-                onSelect: (value) {
-                  setState(() {
-                    _selectedProvince = value;
-                    _selectedMunicipality = '';
-                    _selectedBarangay = '';
-                    _showProvince = false;
-                    _showMunicipality = false;
-                    _showBarangay = false;
-                  });
-                },
-              ),
-              const SizedBox(height: 10),
+                // INTRO
+                const Text(
+                  'Where are you located?',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.gray,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                const SizedBox(height: 18),
 
-              // MUNICIPALITY
-              _buildLabel('MUNICIPALITY / CITY *'),
-              const SizedBox(height: 4),
-              _buildDropdown(
-                value: _selectedMunicipality,
-                hint: 'Select municipality',
-                isOpen: _showMunicipality,
-                items: _getMunicipalities(),
-                isDisabled: _selectedProvince.isEmpty,
-                onToggle: () {
-                  if (_selectedProvince.isEmpty) {
-                    _showAlert('Please select a province first.');
-                  } else {
+                // LOCATION SECTION
+                _buildSectionTitle('LOCATION (API-BASED)'),
+                const SizedBox(height: 6),
+
+                // PROVINCE
+                _buildLabel('PROVINCE *'),
+                const SizedBox(height: 4),
+                _buildDropdown(
+                  value: _selectedProvince,
+                  hint: 'Select province',
+                  isOpen: _showProvince,
+                  items: AddressData.provinces,
+                  onToggle: () {
                     setState(() {
-                      _showMunicipality = !_showMunicipality;
-                      _showProvince = false;
+                      _showProvince = !_showProvince;
+                      _showMunicipality = false;
                       _showBarangay = false;
                     });
-                  }
-                },
-                onSelect: (value) {
-                  setState(() {
-                    _selectedMunicipality = value;
-                    _selectedBarangay = '';
-                    _showMunicipality = false;
-                    _showBarangay = false;
-                  });
-                },
-              ),
-              const SizedBox(height: 10),
-
-              // BARANGAY
-              _buildLabel('BARANGAY *'),
-              const SizedBox(height: 4),
-              _buildDropdown(
-                value: _selectedBarangay,
-                hint: 'Select barangay',
-                isOpen: _showBarangay,
-                items: _getBarangays(),
-                isDisabled: _selectedMunicipality.isEmpty,
-                onToggle: () {
-                  if (_selectedMunicipality.isEmpty) {
-                    _showAlert('Please select a municipality first.');
-                  } else {
+                  },
+                  onSelect: (value) {
                     setState(() {
-                      _showBarangay = !_showBarangay;
+                      _selectedProvince = value;
+                      _selectedMunicipality = '';
+                      _selectedBarangay = '';
                       _showProvince = false;
                       _showMunicipality = false;
+                      _showBarangay = false;
                     });
-                  }
-                },
-                onSelect: (value) {
-                  setState(() {
-                    _selectedBarangay = value;
-                    _showBarangay = false;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
+                  },
+                ),
+                const SizedBox(height: 10),
 
-              // ============================================================
-              // MANUAL ADDRESS
-              // ============================================================
-              _buildSectionTitle('MANUAL ADDRESS'),
-              const SizedBox(height: 6),
+                // MUNICIPALITY
+                _buildLabel('MUNICIPALITY / CITY *'),
+                const SizedBox(height: 4),
+                _buildDropdown(
+                  value: _selectedMunicipality,
+                  hint: 'Select municipality',
+                  isOpen: _showMunicipality,
+                  items: _getMunicipalities(),
+                  isDisabled: _selectedProvince.isEmpty,
+                  onToggle: () {
+                    if (_selectedProvince.isEmpty) {
+                      _showAlert('Please select a province first.');
+                    } else {
+                      setState(() {
+                        _showMunicipality = !_showMunicipality;
+                        _showProvince = false;
+                        _showBarangay = false;
+                      });
+                    }
+                  },
+                  onSelect: (value) {
+                    setState(() {
+                      _selectedMunicipality = value;
+                      _selectedBarangay = '';
+                      _showMunicipality = false;
+                      _showBarangay = false;
+                    });
+                  },
+                ),
+                const SizedBox(height: 10),
 
-              // HOUSE / UNIT NUMBER
-              _buildLabel('HOUSE / UNIT NUMBER'),
-              const SizedBox(height: 4),
-              _buildTextField(
-                controller: _houseNumberController,
-                hintText: '123',
-              ),
-              const SizedBox(height: 10),
+                // BARANGAY
+                _buildLabel('BARANGAY *'),
+                const SizedBox(height: 4),
+                _buildDropdown(
+                  value: _selectedBarangay,
+                  hint: 'Select barangay',
+                  isOpen: _showBarangay,
+                  items: _getBarangays(),
+                  isDisabled: _selectedMunicipality.isEmpty,
+                  onToggle: () {
+                    if (_selectedMunicipality.isEmpty) {
+                      _showAlert('Please select a municipality first.');
+                    } else {
+                      setState(() {
+                        _showBarangay = !_showBarangay;
+                        _showProvince = false;
+                        _showMunicipality = false;
+                      });
+                    }
+                  },
+                  onSelect: (value) {
+                    setState(() {
+                      _selectedBarangay = value;
+                      _showBarangay = false;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
 
-              // STREET
-              _buildLabel('STREET'),
-              const SizedBox(height: 4),
-              _buildTextField(
-                controller: _streetController,
-                hintText: 'Sampaguita Street',
-              ),
-              const SizedBox(height: 10),
+                // MANUAL ADDRESS
+                _buildSectionTitle('MANUAL ADDRESS'),
+                const SizedBox(height: 6),
 
-              // OTHER DETAILS
-              _buildLabel('OTHER DETAILS'),
-              const SizedBox(height: 4),
-              _buildTextField(
-                controller: _otherDetailsController,
-                hintText: 'Near the plaza...',
-                maxLines: 2,
-              ),
-              const SizedBox(height: 28),
-
-              // ============================================================
-              // CONTINUE BUTTON
-              // ============================================================
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _handleContinue,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                // HOUSE / UNIT NUMBER (Optional)
+                _buildLabel('HOUSE / UNIT NUMBER'),
+                const SizedBox(height: 4),
+                _buildTextField(
+                  controller: _houseNumberController,
+                  hintText: '123',
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) return null;
+                    if (value.trim().length > 20) return 'Max 20 characters';
+                    if (!RegExp(r'^[a-zA-Z0-9\-\s]+$').hasMatch(value)) {
+                      return 'Letters, numbers, hyphen only';
+                    }
+                    return null;
+                  },
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'[a-zA-Z0-9\-\s]'),
                     ),
-                  ),
-                  child: const Text(
-                    'Continue',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.white,
-                      fontFamily: 'Poppins',
+                    LengthLimitingTextInputFormatter(20),
+                  ],
+                ),
+                const SizedBox(height: 10),
+
+                // STREET (Optional)
+                _buildLabel('STREET'),
+                const SizedBox(height: 4),
+                _buildTextField(
+                  controller: _streetController,
+                  hintText: 'Sampaguita Street',
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) return null;
+                    if (value.trim().length > 100) return 'Max 100 characters';
+                    if (!RegExp(r"^[a-zA-Z0-9ñÑ\s\-\.,']+$").hasMatch(value)) {
+                      return 'Invalid characters';
+                    }
+                    return null;
+                  },
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r"[a-zA-Z0-9ñÑ\s\-\.,']"),
+                    ),
+                    LengthLimitingTextInputFormatter(100),
+                  ],
+                ),
+                const SizedBox(height: 10),
+
+                // OTHER DETAILS (Optional)
+                _buildLabel('OTHER DETAILS'),
+                const SizedBox(height: 4),
+                _buildTextField(
+                  controller: _otherDetailsController,
+                  hintText: 'Near the plaza...',
+                  maxLines: 2,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) return null;
+                    if (value.trim().length > 200) return 'Max 200 characters';
+                    return null;
+                  },
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(200),
+                  ],
+                ),
+                const SizedBox(height: 28),
+
+                // CONTINUE BUTTON
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _handleContinue,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Text(
+                      'Continue',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.white,
+                        fontFamily: 'Poppins',
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-            ],
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
       ),
@@ -662,7 +698,7 @@ class _RegisterAddressScreenState extends State<RegisterAddressScreen> {
   }
 
   // ============================================================
-  // STEPPER - UPDATED WITH CONNECTING LINE
+  // STEPPER (walang binago)
   // ============================================================
   Widget _buildStepper({required int currentStep}) {
     final List<String> steps = [
@@ -677,7 +713,6 @@ class _RegisterAddressScreenState extends State<RegisterAddressScreen> {
       height: 64,
       child: Stack(
         children: [
-          // CONNECTING LINE
           Positioned(
             left: 26,
             right: 26,
@@ -685,7 +720,6 @@ class _RegisterAddressScreenState extends State<RegisterAddressScreen> {
             child: Row(
               children: List.generate(steps.length - 1, (index) {
                 final isCompleted = index + 1 < currentStep;
-
                 return Expanded(
                   child: Container(
                     height: 2,
@@ -696,15 +730,12 @@ class _RegisterAddressScreenState extends State<RegisterAddressScreen> {
               }),
             ),
           ),
-
-          // CIRCLES + LABELS
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: steps.asMap().entries.map((entry) {
               final index = entry.key;
               final label = entry.value;
               final stepNumber = index + 1;
-
               final isCurrent = stepNumber == currentStep;
               final isCompleted = stepNumber < currentStep;
 
@@ -712,7 +743,6 @@ class _RegisterAddressScreenState extends State<RegisterAddressScreen> {
                 width: 50,
                 child: Column(
                   children: [
-                    // STEP CIRCLE
                     Container(
                       width: 34,
                       height: 34,
@@ -742,10 +772,7 @@ class _RegisterAddressScreenState extends State<RegisterAddressScreen> {
                               ),
                       ),
                     ),
-
                     const SizedBox(height: 4),
-
-                    // STEP LABEL
                     Text(
                       label,
                       textAlign: TextAlign.center,
@@ -770,9 +797,6 @@ class _RegisterAddressScreenState extends State<RegisterAddressScreen> {
     );
   }
 
-  // ============================================================
-  // SECTION TITLE
-  // ============================================================
   Widget _buildSectionTitle(String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -788,9 +812,6 @@ class _RegisterAddressScreenState extends State<RegisterAddressScreen> {
     );
   }
 
-  // ============================================================
-  // LABEL
-  // ============================================================
   Widget _buildLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 2),
@@ -807,12 +828,14 @@ class _RegisterAddressScreenState extends State<RegisterAddressScreen> {
   }
 
   // ============================================================
-  // TEXT FIELD
+  // TEXT FIELD (✅ UPDATED — may validation na)
   // ============================================================
   Widget _buildTextField({
     required TextEditingController controller,
     required String hintText,
     int maxLines = 1,
+    String? Function(String?)? validator,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -820,11 +843,14 @@ class _RegisterAddressScreenState extends State<RegisterAddressScreen> {
         border: Border.all(color: AppColors.lightGray),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: TextField(
+      child: TextFormField(
+        // ✅ UPDATED: TextField → TextFormField
         controller: controller,
         textDirection: TextDirection.ltr,
         textAlign: TextAlign.left,
         maxLines: maxLines,
+        validator: validator,
+        inputFormatters: inputFormatters,
         style: const TextStyle(
           fontSize: 13,
           color: AppColors.darkGray,
@@ -835,17 +861,24 @@ class _RegisterAddressScreenState extends State<RegisterAddressScreen> {
           hintStyle: const TextStyle(
             fontSize: 13,
             color: AppColors.gray,
+            fontFamily: 'Poppins',
           ),
           border: InputBorder.none,
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          errorStyle: const TextStyle(
+            fontSize: 11,
+            fontFamily: 'Poppins',
+            height: 1.3,
+          ),
+          errorMaxLines: 2,
         ),
       ),
     );
   }
 
   // ============================================================
-  // DROPDOWN
+  // DROPDOWN (walang binago)
   // ============================================================
   Widget _buildDropdown({
     required String value,

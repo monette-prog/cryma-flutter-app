@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../utils/colors.dart';
+import '../utils/validators.dart';
 
 class RegisterPersonalScreen extends StatefulWidget {
   const RegisterPersonalScreen({super.key});
@@ -17,10 +19,22 @@ class _RegisterPersonalScreenState extends State<RegisterPersonalScreen> {
   final TextEditingController _birthdayController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
 
+  final _formKey = GlobalKey<FormState>();
+
   String _selectedSex = '';
   bool _showSexDropdown = false;
 
   final List<String> _sexOptions = ['Male', 'Female', 'Other'];
+
+  @override
+  void dispose() {
+    _lastNameController.dispose();
+    _firstNameController.dispose();
+    _middleInitialController.dispose();
+    _birthdayController.dispose();
+    _ageController.dispose();
+    super.dispose();
+  }
 
   // ============================================================
   // AGE COMPUTATION
@@ -39,21 +53,8 @@ class _RegisterPersonalScreenState extends State<RegisterPersonalScreen> {
     if (date != null) {
       _birthdayController.text = DateFormat('MM/dd/yyyy').format(date);
       _computeAge(date);
+      setState(() {}); // ✅ refresh para mawala yung error
     }
-  }
-
-  // ============================================================
-  // VALIDATION
-  // ============================================================
-  bool _validateForm() {
-    if (_lastNameController.text.isEmpty ||
-        _firstNameController.text.isEmpty ||
-        _selectedSex.isEmpty ||
-        _birthdayController.text.isEmpty) {
-      _showErrorDialog('Please fill in all required fields.');
-      return false;
-    }
-    return true;
   }
 
   void _showErrorDialog(String message) {
@@ -73,26 +74,40 @@ class _RegisterPersonalScreenState extends State<RegisterPersonalScreen> {
   }
 
   void _handleContinue() {
-    if (_validateForm()) {
-      final formData = {
-        'lastName': _lastNameController.text,
-        'firstName': _firstNameController.text,
-        'middleInitial': _middleInitialController.text,
-        'sex': _selectedSex,
-        'birthday': _birthdayController.text,
-        'age': _ageController.text,
-      };
-      Navigator.pushNamed(
-        context,
-        '/register_contact',
-        arguments: formData,
-      );
+    // ✅ Validate names via Form
+    final isFormValid = _formKey.currentState?.validate() ?? false;
+
+    // ✅ Validate sex
+    if (_selectedSex.isEmpty) {
+      _showErrorDialog('Please select your sex.');
+      return;
     }
+
+    // ✅ Validate birthday
+    if (_birthdayController.text.isEmpty) {
+      _showErrorDialog('Please select your birthday.');
+      return;
+    }
+
+    if (!isFormValid) {
+      return; // May error na sa fields
+    }
+
+    final formData = {
+      'lastName': _lastNameController.text.trim(),
+      'firstName': _firstNameController.text.trim(),
+      'middleInitial': _middleInitialController.text.trim(),
+      'sex': _selectedSex,
+      'birthday': _birthdayController.text,
+      'age': _ageController.text,
+    };
+    Navigator.pushNamed(
+      context,
+      '/register_contact',
+      arguments: formData,
+    );
   }
 
-  // ============================================================
-  // BUILD
-  // ============================================================
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -106,143 +121,151 @@ class _RegisterPersonalScreenState extends State<RegisterPersonalScreen> {
             horizontal: screenWidth * 0.05,
             vertical: screenHeight * 0.02,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ============================================================
-              // HEADER - magkadikit ang arrow at title
-              // ============================================================
-              Row(
-                children: [
-                  IconButton(
-                    icon:
-                        const Icon(Icons.arrow_back, color: AppColors.primary),
-                    onPressed: () => Navigator.pop(context),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Create Account',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
-                      fontFamily: 'Poppins',
+          child: Form(
+            key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // HEADER
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back,
+                          color: AppColors.primary),
+                      onPressed: () => Navigator.pop(context),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                     ),
-                  ),
-                  const Spacer(),
-                ],
-              ),
-              const SizedBox(height: 10),
-
-              // STEPPER
-              _buildStepper(currentStep: 1),
-              const SizedBox(height: 10),
-
-              // INTRO TEXT
-              const Text(
-                'Enter your personal information to get started.',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.gray,
-                  fontFamily: 'Poppins',
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Create Account',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primary,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                    const Spacer(),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 18),
+                const SizedBox(height: 10),
 
-              // ============================================================
-              // FORM
-              // ============================================================
-              // LAST NAME
-              _buildLabel('LAST NAME *'),
-              _buildTextField(
-                controller: _lastNameController,
-                hintText: 'Dela Cruz',
-              ),
-              const SizedBox(height: 10),
+                // STEPPER
+                _buildStepper(currentStep: 1),
+                const SizedBox(height: 10),
 
-              // FIRST NAME
-              _buildLabel('FIRST NAME *'),
-              _buildTextField(
-                controller: _firstNameController,
-                hintText: 'Juan',
-              ),
-              const SizedBox(height: 10),
-
-              // MIDDLE INITIAL
-              _buildLabel('MIDDLE INITIAL'),
-              _buildTextField(
-                controller: _middleInitialController,
-                hintText: 'R.',
-              ),
-              const SizedBox(height: 10),
-
-              // SEX
-              _buildLabel('SEX *'),
-              _buildSexDropdown(),
-              const SizedBox(height: 10),
-
-              // BIRTHDAY
-              _buildLabel('BIRTHDAY *'),
-              _buildDatePicker(),
-              const SizedBox(height: 10),
-
-              // AGE
-              _buildLabel('AGE (AUTO-GENERATED)'),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.lightGray,
-                  border: Border.all(color: AppColors.lightGray),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: TextField(
-                  controller: _ageController,
-                  enabled: false,
-                  style: const TextStyle(
+                // INTRO TEXT
+                const Text(
+                  'Enter your personal information to get started.',
+                  style: TextStyle(
                     fontSize: 13,
                     color: AppColors.gray,
                     fontFamily: 'Poppins',
                   ),
-                  decoration: const InputDecoration(
-                    hintText: '—',
-                    hintStyle: TextStyle(
+                ),
+                const SizedBox(height: 18),
+
+                // LAST NAME
+                _buildLabel('LAST NAME *'),
+                _buildTextField(
+                  controller: _lastNameController,
+                  hintText: 'Dela Cruz',
+                  validator: AppValidators.name,
+                ),
+                const SizedBox(height: 10),
+
+                // FIRST NAME
+                _buildLabel('FIRST NAME *'),
+                _buildTextField(
+                  controller: _firstNameController,
+                  hintText: 'Juan',
+                  validator: AppValidators.name,
+                ),
+                const SizedBox(height: 10),
+
+                // MIDDLE INITIAL
+                _buildLabel('MIDDLE INITIAL'),
+                _buildTextField(
+                  controller: _middleInitialController,
+                  hintText: 'R.',
+                  validator: AppValidators.middleInitial,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'[a-zA-Z\.]'),
+                    ),
+                    LengthLimitingTextInputFormatter(2),
+                  ],
+                ),
+                const SizedBox(height: 10),
+
+                // SEX
+                _buildLabel('SEX *'),
+                _buildSexDropdown(),
+                const SizedBox(height: 10),
+
+                // BIRTHDAY
+                _buildLabel('BIRTHDAY *'),
+                _buildDatePicker(),
+                const SizedBox(height: 10),
+
+                // AGE (AUTO-GENERATED)
+                _buildLabel('AGE (AUTO-GENERATED)'),
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.lightGray,
+                    border: Border.all(color: AppColors.lightGray),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: TextField(
+                    controller: _ageController,
+                    enabled: false,
+                    style: const TextStyle(
                       fontSize: 13,
                       color: AppColors.gray,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 28),
-
-              // CONTINUE BUTTON
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _handleContinue,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: const Text(
-                    'Continue',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.white,
                       fontFamily: 'Poppins',
                     ),
+                    decoration: const InputDecoration(
+                      hintText: '—',
+                      hintStyle: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.gray,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-            ],
+                const SizedBox(height: 28),
+
+                // CONTINUE BUTTON
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _handleContinue,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Text(
+                      'Continue',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.white,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
       ),
@@ -265,7 +288,6 @@ class _RegisterPersonalScreenState extends State<RegisterPersonalScreen> {
       height: 64,
       child: Stack(
         children: [
-          // CONNECTING LINE
           Positioned(
             left: 26,
             right: 26,
@@ -273,7 +295,6 @@ class _RegisterPersonalScreenState extends State<RegisterPersonalScreen> {
             child: Row(
               children: List.generate(steps.length - 1, (index) {
                 final isCompleted = index + 1 < currentStep;
-
                 return Expanded(
                   child: Container(
                     height: 2,
@@ -284,15 +305,12 @@ class _RegisterPersonalScreenState extends State<RegisterPersonalScreen> {
               }),
             ),
           ),
-
-          // CIRCLES + LABELS
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: steps.asMap().entries.map((entry) {
               final index = entry.key;
               final label = entry.value;
               final stepNumber = index + 1;
-
               final isCurrent = stepNumber == currentStep;
               final isCompleted = stepNumber < currentStep;
 
@@ -300,7 +318,6 @@ class _RegisterPersonalScreenState extends State<RegisterPersonalScreen> {
                 width: 50,
                 child: Column(
                   children: [
-                    // STEP CIRCLE
                     Container(
                       width: 34,
                       height: 34,
@@ -330,10 +347,7 @@ class _RegisterPersonalScreenState extends State<RegisterPersonalScreen> {
                               ),
                       ),
                     ),
-
                     const SizedBox(height: 4),
-
-                    // STEP LABEL
                     Text(
                       label,
                       textAlign: TextAlign.center,
@@ -358,9 +372,6 @@ class _RegisterPersonalScreenState extends State<RegisterPersonalScreen> {
     );
   }
 
-  // ============================================================
-  // LABEL
-  // ============================================================
   Widget _buildLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
@@ -377,11 +388,14 @@ class _RegisterPersonalScreenState extends State<RegisterPersonalScreen> {
   }
 
   // ============================================================
-  // TEXT FIELD
+  // TEXT FIELD (may validation)
   // ============================================================
   Widget _buildTextField({
     required TextEditingController controller,
     required String hintText,
+    String? Function(String?)? validator,
+    List<TextInputFormatter>? inputFormatters,
+    int maxLines = 1,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -389,8 +403,12 @@ class _RegisterPersonalScreenState extends State<RegisterPersonalScreen> {
         border: Border.all(color: AppColors.lightGray),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: TextField(
+      child: TextFormField(
+        // ✅ UPDATED: TextField → TextFormField
         controller: controller,
+        maxLines: maxLines,
+        validator: validator,
+        inputFormatters: inputFormatters,
         style: const TextStyle(
           fontSize: 13,
           color: AppColors.darkGray,
@@ -401,17 +419,24 @@ class _RegisterPersonalScreenState extends State<RegisterPersonalScreen> {
           hintStyle: const TextStyle(
             fontSize: 13,
             color: AppColors.gray,
+            fontFamily: 'Poppins',
           ),
           border: InputBorder.none,
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          errorStyle: const TextStyle(
+            fontSize: 11,
+            fontFamily: 'Poppins',
+            height: 1.3,
+          ),
+          errorMaxLines: 2,
         ),
       ),
     );
   }
 
   // ============================================================
-  // SEX DROPDOWN
+  // SEX DROPDOWN (walang binago)
   // ============================================================
   Widget _buildSexDropdown() {
     return Column(
@@ -500,7 +525,7 @@ class _RegisterPersonalScreenState extends State<RegisterPersonalScreen> {
   }
 
   // ============================================================
-  // DATE PICKER
+  // DATE PICKER (walang binago)
   // ============================================================
   Widget _buildDatePicker() {
     return GestureDetector(
@@ -520,7 +545,11 @@ class _RegisterPersonalScreenState extends State<RegisterPersonalScreen> {
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.white,
-          border: Border.all(color: AppColors.lightGray),
+          border: Border.all(
+            color: _birthdayController.text.isEmpty
+                ? AppColors.lightGray
+                : AppColors.lightGray,
+          ),
           borderRadius: BorderRadius.circular(16),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
